@@ -1,0 +1,131 @@
+---
+import { getCollection, render } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import Footer from '../../components/Footer.astro'
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes')
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }))
+}
+
+const { note } = Astro.props
+const { Content } = await render(note)
+const fmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+})
+---
+
+<Base title={`${note.data.title} — Remotely Human`} description={note.data.description}>
+  <main>
+    <a class="back" href="/notes">← All notes</a>
+    <h1>{note.data.title}</h1>
+    <time datetime={note.data.date.toISOString()}>{fmt.format(note.data.date)}</time>
+    <article>
+      <Content />
+    </article>
+  </main>
+  <Footer />
+</Base>
+
+<style is:global>
+  main {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
+    min-height: calc(100vh - 12rem);
+  }
+  .back {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--dim);
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  main h1 {
+    margin-top: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    letter-spacing: -0.02em;
+  }
+  main > time {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+  }
+  article {
+    margin-top: 2.25rem;
+    color: var(--dim);
+    font-size: 0.95rem;
+  }
+  article h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin: 2rem 0 0.6rem;
+  }
+  article h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin: 1.5rem 0 0.5rem;
+  }
+  article p {
+    margin-bottom: 0.9rem;
+  }
+  article ul,
+  article ol {
+    margin: 0.5rem 0 0.9rem;
+    padding-left: 1.25rem;
+  }
+  article li {
+    margin-bottom: 0.3rem;
+  }
+  article strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  article code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--panel);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  article pre {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    margin-bottom: 0.9rem;
+  }
+  article pre code {
+    background: none;
+    padding: 0;
+  }
+  article blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--faint);
+  }
+  a.wiki-link {
+    color: var(--accent);
+    border-bottom: 1px dashed rgba(237, 51, 107, 0.4);
+  }
+  a.wiki-link:hover {
+    color: var(--accent-hover);
+    border-bottom-style: solid;
+  }
+</style>

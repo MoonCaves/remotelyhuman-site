@@ -1,0 +1,167 @@
+---
+import Base from '../layouts/Base.astro'
+import Footer from '../components/Footer.astro'
+---
+
+<Base title="Remotely Human">
+  <script is:inline>
+    // Legacy Carrd hash-section URLs → real pages (OAuth verification links, old bookmarks)
+    const map = {
+      '#privacy-policy-section': '/privacy',
+      '#privacy-policy': '/privacy',
+      '#privacy': '/privacy',
+      '#terms-of-service-section': '/terms',
+      '#terms-of-service': '/terms',
+      '#terms': '/terms',
+    }
+    const target = map[location.hash.toLowerCase()]
+    if (target) location.replace(target)
+  </script>
+
+  <main>
+    <div class="sleeper" aria-hidden="true">
+      <span class="brain">🧠</span>
+      <span class="z z1">z</span>
+      <span class="z z2">z</span>
+      <span class="z z3">z</span>
+    </div>
+
+    <h1>Remotely Human</h1>
+
+    <p class="tagline">
+      Don’t give up on your dreams.<br />
+      <em>Keep sleeping.</em>
+    </p>
+
+    <p class="intro">
+      This is the official home of Remotely Human. We work quietly across many
+      projects. If you received an email from
+      <span class="domain">@remotelyhuman.com</span>, you’re in the right place.
+    </p>
+
+    <p class="status" role="presentation">
+      status: dreaming&ensp;·&ensp;projects: many&ensp;·&ensp;replies: eventual
+    </p>
+
+    <a class="cta" href="mailto:web@remotelyhuman.com">📬 Contact Ops</a>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  main {
+    min-height: calc(100vh - 7rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 1.5rem;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+
+  /* ——— signature: the sleeping brain ——— */
+  .sleeper {
+    position: relative;
+    margin-bottom: 2.25rem;
+  }
+  .brain {
+    display: block;
+    font-size: 3.25rem;
+    line-height: 1;
+    animation: breathe 5s ease-in-out infinite;
+    filter: drop-shadow(0 0 18px rgba(237, 51, 107, 0.35));
+  }
+  .z {
+    position: absolute;
+    left: 100%;
+    bottom: 60%;
+    font-family: var(--font-mono);
+    color: var(--faint);
+    font-size: 0.9rem;
+    opacity: 0;
+    animation: drift 6s ease-out infinite;
+  }
+  .z2 {
+    animation-delay: 2s;
+    font-size: 0.75rem;
+  }
+  .z3 {
+    animation-delay: 4s;
+    font-size: 0.6rem;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(237, 51, 107, 0.2)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgba(237, 51, 107, 0.4)); }
+  }
+  @keyframes drift {
+    0% { opacity: 0; transform: translate(0, 0); }
+    15% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(1.1rem, -2.2rem); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brain { animation: none; }
+    .z { animation: none; opacity: 0.5; }
+    .z2 { transform: translate(0.55rem, -1.1rem); }
+    .z3 { transform: translate(1.1rem, -2.2rem); }
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 2.75rem);
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.05rem;
+    color: var(--dim);
+  }
+  .tagline em {
+    color: var(--ink);
+  }
+
+  .intro {
+    margin-top: 1.75rem;
+    font-size: 0.95rem;
+    color: var(--dim);
+    text-wrap: pretty;
+  }
+  .domain {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--ink);
+  }
+
+  .status {
+    margin-top: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    color: var(--faint);
+  }
+
+  .cta {
+    margin-top: 1.25rem;
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    background: var(--accent);
+    padding: 0.8rem 1.9rem;
+    border-radius: 999px;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .cta:hover {
+    background: var(--accent-hover);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+</style>

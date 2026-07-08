@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import Footer from '../../components/Footer.astro'
+
+const notes = (await getCollection('notes')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+)
+const fmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit',
+})
+---
+
+<Base title="Notes — Remotely Human" description="Field notes from Remotely Human. Unthemed, interlinked, occasionally useful.">
+  <main>
+    <a class="back" href="/">← Back to site</a>
+    <h1>Notes</h1>
+    <p class="sub">
+      Things we figured out, wrote down, and linked together. No theme.
+      No schedule. Follow the links.
+    </p>
+
+    {
+      notes.length === 0 ? (
+        <p class="empty">Nothing here yet. The brain is still asleep.</p>
+      ) : (
+        <ul>
+          {notes.map((note) => (
+            <li>
+              <time datetime={note.data.date.toISOString()}>
+                {fmt.format(note.data.date)}
+              </time>
+              <a href={`/notes/${note.id}`}>{note.data.title}</a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  main {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
+    min-height: calc(100vh - 12rem);
+  }
+  .back {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--dim);
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  h1 {
+    margin-top: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    letter-spacing: -0.02em;
+  }
+  .sub {
+    margin-top: 0.75rem;
+    color: var(--dim);
+    font-size: 0.95rem;
+  }
+  .empty {
+    margin-top: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--faint);
+  }
+  ul {
+    margin-top: 2.5rem;
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  li a {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  li a:hover {
+    color: var(--accent);
+  }
+</style>

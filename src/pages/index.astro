@@ -1,6 +1,13 @@
 ---
 import Base from '../layouts/Base.astro'
 import Footer from '../components/Footer.astro'
+
+const NAV_LINKS = [
+  { label: 'PROJECTS', href: '#' },
+  { label: 'BLOG', href: '/notes' },
+  { label: 'ABOUT', href: '#' },
+  { label: 'RESUME', href: '#' },
+]
 ---
 
 <Base title="Remotely Human">
@@ -18,150 +25,420 @@ import Footer from '../components/Footer.astro'
     if (target) location.replace(target)
   </script>
 
-  <main>
-    <div class="sleeper" aria-hidden="true">
-      <span class="brain">🧠</span>
-      <span class="z z1">z</span>
-      <span class="z z2">z</span>
-      <span class="z z3">z</span>
+  <section class="hero">
+    <!-- Background video + overlays -->
+    <div class="video-wrap" aria-hidden="true">
+      <video id="bg-video" autoplay muted loop playsinline></video>
+      <div class="overlay overlay-left"></div>
+      <div class="overlay overlay-bottom"></div>
     </div>
 
-    <h1>Remotely Human</h1>
+    <!-- Vertical grid lines -->
+    <div class="grid-lines" aria-hidden="true">
+      <div style="left: 25%"></div>
+      <div style="left: 50%"></div>
+      <div style="left: 75%"></div>
+    </div>
 
-    <p class="tagline">
-      Don’t give up on your dreams.<br />
-      <em>Keep sleeping.</em>
-    </p>
+    <!-- Central glow -->
+    <svg
+      class="glow"
+      width="900"
+      height="360"
+      viewBox="0 0 900 360"
+      fill="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="glow-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="25"></feGaussianBlur>
+        </filter>
+        <radialGradient id="glow-fill" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.35"></stop>
+          <stop offset="55%" stop-color="#14532d" stop-opacity="0.22"></stop>
+          <stop offset="100%" stop-color="#070b0a" stop-opacity="0"></stop>
+        </radialGradient>
+      </defs>
+      <ellipse cx="450" cy="180" rx="380" ry="110" fill="url(#glow-fill)" filter="url(#glow-blur)"></ellipse>
+    </svg>
 
-    <p class="intro">
-      This is the official home of Remotely Human. We work quietly across many
-      projects. If you received an email from
-      <span class="domain">@remotelyhuman.com</span>, you’re in the right place.
-    </p>
+    <!-- Navigation -->
+    <header>
+      <nav class="topnav">
+        <a href="/" class="logo">🧠 <span>REMOTELY HUMAN</span></a>
+        <ul class="desktop-menu">
+          {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+        <button id="menu-open" class="menu-btn" aria-label="Open menu">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+      </nav>
+      <div id="mobile-overlay" class="mobile-overlay">
+        <div class="mobile-top">
+          <a href="/" class="logo">🧠 <span>REMOTELY HUMAN</span></a>
+          <button id="menu-close" class="menu-btn" aria-label="Close menu">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+          </button>
+        </div>
+        <ul>
+          {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </div>
+    </header>
 
-    <p class="status" role="presentation">
-      status: dreaming&ensp;·&ensp;projects: many&ensp;·&ensp;replies: eventual
-    </p>
+    <!-- Hero content -->
+    <div class="content">
+      <div class="liquid-glass">
+        <span class="tag">[ 2025 ]</span>
+        <div>
+          <h3>Keep <em>sleeping</em>.</h3>
+          <p>Remotely Human supports projects across multiple sectors — often quietly.</p>
+        </div>
+      </div>
 
-    <a class="cta" href="mailto:web@remotelyhuman.com">📬 Contact Ops</a>
-  </main>
+      <p class="eyebrow">The Official Home of Remotely Human</p>
+
+      <h1>
+        Don’t Give Up<br />
+        On Your Dreams<span class="dot">.</span>
+      </h1>
+
+      <p class="description">
+        We work quietly across many projects. If you received an email from
+        @remotelyhuman.com, you’re in the right place.
+      </p>
+
+      <a class="cta" href="mailto:web@remotelyhuman.com">
+        Contact Ops
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
 
   <Footer />
 </Base>
 
+<script>
+  import Hls from 'hls.js'
+
+  const STREAM_URL =
+    'https://stream.mux.com/tLkHO1qZoaaQOUeVWo8hEBeGQfySP02EPS02BmnNFyXys.m3u8'
+
+  const video = document.getElementById('bg-video') as HTMLVideoElement | null
+  if (video) {
+    if (Hls.isSupported()) {
+      const hls = new Hls({ enableWorker: false })
+      hls.loadSource(STREAM_URL)
+      hls.attachMedia(video)
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {})
+      })
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS (Safari)
+      video.src = STREAM_URL
+      video.play().catch(() => {})
+    }
+  }
+
+  const overlay = document.getElementById('mobile-overlay')
+  document.getElementById('menu-open')?.addEventListener('click', () => overlay?.classList.add('open'))
+  document.getElementById('menu-close')?.addEventListener('click', () => overlay?.classList.remove('open'))
+  overlay?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => overlay.classList.remove('open')))
+</script>
+
 <style>
-  main {
-    min-height: calc(100vh - 7rem);
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ——— background video + overlays ——— */
+  .video-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+  }
+  .overlay-left {
+    background: linear-gradient(to right, #070b0a 0%, rgba(7, 11, 10, 0.4) 50%, transparent 100%);
+  }
+  .overlay-bottom {
+    background: linear-gradient(to top, #070b0a 0%, rgba(7, 11, 10, 0.3) 50%, transparent 100%);
+  }
+
+  /* ——— grid lines ——— */
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: none;
+  }
+  .grid-lines div {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  @media (min-width: 1024px) {
+    .grid-lines {
+      display: block;
+    }
+  }
+
+  /* ——— glow ——— */
+  .glow {
+    position: absolute;
+    left: 50%;
+    top: 8%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  /* ——— navigation ——— */
+  header {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 40;
+  }
+  .topnav {
+    max-width: 80rem;
+    margin: 0 auto;
+    height: 5rem;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    color: #fff;
+    font-family: var(--font-jakarta);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .logo:hover {
+    color: #fff;
+  }
+  .desktop-menu {
+    display: none;
+    list-style: none;
+    gap: 2.5rem;
+  }
+  .desktop-menu a {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.2s ease;
+  }
+  .desktop-menu a:hover {
+    color: var(--accent);
+  }
+  .menu-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+  }
+  @media (min-width: 768px) {
+    .desktop-menu {
+      display: flex;
+    }
+    .menu-btn {
+      display: none;
+    }
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(7, 11, 10, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .mobile-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-top {
+    height: 5rem;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mobile-overlay ul {
+    list-style: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .mobile-overlay ul a {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.05em;
+  }
+  .mobile-overlay ul a:hover {
+    color: var(--accent);
+  }
+
+  /* ——— hero content ——— */
+  .content {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    max-width: 80rem;
+    width: 100%;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 4rem 1.5rem;
-    max-width: 34rem;
-    margin: 0 auto;
   }
 
-  /* ——— signature: the sleeping brain ——— */
-  .sleeper {
+  /* ——— liquid glass card ——— */
+  .liquid-glass {
+    width: 200px;
+    height: 200px;
+    transform: translateY(-50px);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
     position: relative;
-    margin-bottom: 2.25rem;
+    isolation: isolate;
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
   }
-  .brain {
-    display: block;
-    font-size: 3.25rem;
-    line-height: 1;
-    animation: breathe 5s ease-in-out infinite;
-    filter: drop-shadow(0 0 18px rgba(237, 51, 107, 0.35));
-  }
-  .z {
+  .liquid-glass::before {
+    content: '';
     position: absolute;
-    left: 100%;
-    bottom: 60%;
-    font-family: var(--font-mono);
-    color: var(--faint);
-    font-size: 0.9rem;
-    opacity: 0;
-    animation: drift 6s ease-out infinite;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.12) 50%,
+      rgba(255, 255, 255, 0.35) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
   }
-  .z2 {
-    animation-delay: 2s;
-    font-size: 0.75rem;
+  .liquid-glass .tag {
+    font-family: var(--font-jakarta);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--accent);
   }
-  .z3 {
-    animation-delay: 4s;
-    font-size: 0.6rem;
+  .liquid-glass h3 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #fff;
+  }
+  .liquid-glass h3 em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.15em;
+  }
+  .liquid-glass p {
+    margin-top: 0.5rem;
+    font-size: 11px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
   }
 
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(237, 51, 107, 0.2)); }
-    50% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgba(237, 51, 107, 0.4)); }
-  }
-  @keyframes drift {
-    0% { opacity: 0; transform: translate(0, 0); }
-    15% { opacity: 0.8; }
-    100% { opacity: 0; transform: translate(1.1rem, -2.2rem); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .brain { animation: none; }
-    .z { animation: none; opacity: 0.5; }
-    .z2 { transform: translate(0.55rem, -1.1rem); }
-    .z3 { transform: translate(1.1rem, -2.2rem); }
+  /* ——— typography ——— */
+  .eyebrow {
+    font-family: var(--font-jakarta);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
   h1 {
+    margin-top: 1.25rem;
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: clamp(2rem, 6vw, 2.75rem);
-    letter-spacing: -0.02em;
+    font-size: clamp(40px, 7.5vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+  h1 .dot {
+    color: var(--accent);
   }
 
-  .tagline {
-    margin-top: 1rem;
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 1.05rem;
-    color: var(--dim);
-  }
-  .tagline em {
-    color: var(--ink);
-  }
-
-  .intro {
-    margin-top: 1.75rem;
-    font-size: 0.95rem;
-    color: var(--dim);
-    text-wrap: pretty;
-  }
-  .domain {
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-    color: var(--ink);
-  }
-
-  .status {
-    margin-top: 2.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.02em;
-    color: var(--faint);
+  .description {
+    margin-top: 1.5rem;
+    max-width: 512px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .cta {
-    margin-top: 1.25rem;
-    display: inline-block;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #fff;
-    background: var(--accent);
-    padding: 0.8rem 1.9rem;
+    margin-top: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     border-radius: 999px;
-    transition: background 0.2s ease, transform 0.2s ease;
+    background: var(--accent);
+    color: #070b0a;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    transition: transform 0.2s ease, background 0.2s ease;
   }
   .cta:hover {
     background: var(--accent-hover);
-    color: #fff;
-    transform: translateY(-1px);
+    color: #070b0a;
+    transform: scale(1.03);
+  }
+  .cta:active {
+    transform: scale(0.98);
   }
 </style>

@@ -17,7 +17,7 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@600;700;800&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -28,16 +28,18 @@ const { title, description = 'The official home of Remotely Human. We work quiet
 
 <style is:global>
   :root {
-    --bg: #14151a;
-    --panel: #1a1b21;
-    --ink: #f1f0f7;
-    --dim: rgba(241, 240, 247, 0.64);
-    --faint: rgba(241, 240, 247, 0.4);
-    --accent: #ed336b;
-    --accent-hover: #fa487e;
-    --hairline: rgba(255, 255, 255, 0.11);
-    --font-display: 'Sora', system-ui, sans-serif;
+    --bg: #070b0a;
+    --panel: #0d1512;
+    --ink: #eef2f0;
+    --dim: rgba(255, 255, 255, 0.7);
+    --faint: rgba(255, 255, 255, 0.45);
+    --accent: #5ed29c;
+    --accent-hover: #7de3b1;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
+    --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', Georgia, serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   }
 
@@ -63,7 +65,7 @@ const { title, description = 'The official home of Remotely Human. We work quiet
 
   ::selection {
     background: var(--accent);
-    color: #fff;
+    color: var(--bg);
   }
 
   a {

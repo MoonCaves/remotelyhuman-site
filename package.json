@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "astro": "^5.10.0",
+    "hls.js": "^1.6.16",
     "remark-wiki-link": "^2.0.1"
   }
 }

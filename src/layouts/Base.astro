@@ -17,12 +17,13 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     <link rel="icon" href="/brand/rh-mark-padded.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <script is:inline>
-      // Theme variant preview: ?theme=purple sticks, ?theme=green resets
+      // Purple is the default; ?theme=green sticks as the comparison variant,
+      // any other ?theme= value resets to default.
       const themeParam = new URLSearchParams(location.search).get('theme')
-      if (themeParam === 'purple') localStorage.setItem('rh-theme', 'purple')
+      if (themeParam === 'green') localStorage.setItem('rh-theme', 'green')
       else if (themeParam) localStorage.removeItem('rh-theme')
-      if (localStorage.getItem('rh-theme') === 'purple')
-        document.documentElement.dataset.theme = 'purple'
+      if (localStorage.getItem('rh-theme') === 'green')
+        document.documentElement.dataset.theme = 'green'
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -43,10 +44,10 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     --ink: #eef2f0;
     --dim: rgba(255, 255, 255, 0.7);
     --faint: rgba(255, 255, 255, 0.45);
-    --accent: #5ed29c;
-    --accent-hover: #7de3b1;
-    --accent-text: #5ed29c;
-    --accent-contrast: #070b0a;
+    --accent: #6c2bd9;
+    --accent-hover: #7d3ee8;
+    --accent-text: #a78bfa;
+    --accent-contrast: #ffffff;
     --hairline: rgba(255, 255, 255, 0.1);
     --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
@@ -55,12 +56,13 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   }
 
-  /* Brand-purple variant (mark color #6C2BD9); green stays in the background glow */
-  :root[data-theme='purple'] {
-    --accent: #6c2bd9;
-    --accent-hover: #7d3ee8;
-    --accent-text: #a78bfa;
-    --accent-contrast: #ffffff;
+  /* Jay's call 2026-07-09: brand purple is the default; green survives in the
+     background glow. ?theme=green flips back for comparison. */
+  :root[data-theme='green'] {
+    --accent: #5ed29c;
+    --accent-hover: #7de3b1;
+    --accent-text: #5ed29c;
+    --accent-contrast: #070b0a;
   }
 
   * {

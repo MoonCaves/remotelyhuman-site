@@ -13,7 +13,17 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/brand/rh-mark-padded.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      // Theme variant preview: ?theme=purple sticks, ?theme=green resets
+      const themeParam = new URLSearchParams(location.search).get('theme')
+      if (themeParam === 'purple') localStorage.setItem('rh-theme', 'purple')
+      else if (themeParam) localStorage.removeItem('rh-theme')
+      if (localStorage.getItem('rh-theme') === 'purple')
+        document.documentElement.dataset.theme = 'purple'
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -35,12 +45,22 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     --faint: rgba(255, 255, 255, 0.45);
     --accent: #5ed29c;
     --accent-hover: #7de3b1;
+    --accent-text: #5ed29c;
+    --accent-contrast: #070b0a;
     --hairline: rgba(255, 255, 255, 0.1);
     --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-serif: 'Instrument Serif', Georgia, serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  /* Brand-purple variant (mark color #6C2BD9); green stays in the background glow */
+  :root[data-theme='purple'] {
+    --accent: #6c2bd9;
+    --accent-hover: #7d3ee8;
+    --accent-text: #a78bfa;
+    --accent-contrast: #ffffff;
   }
 
   * {

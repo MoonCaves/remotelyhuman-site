@@ -121,8 +121,8 @@ const fmt = new Intl.DateTimeFormat('en-US', {
     color: var(--faint);
   }
   a.wiki-link {
-    color: var(--accent);
-    border-bottom: 1px dashed rgba(237, 51, 107, 0.4);
+    color: var(--accent-text);
+    border-bottom: 1px dashed color-mix(in srgb, currentColor 40%, transparent);
   }
   a.wiki-link:hover {
     color: var(--accent-hover);

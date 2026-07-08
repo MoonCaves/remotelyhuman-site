@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import Footer from '../components/Footer.astro'
+import Mark from '../components/Mark.astro'
 
 const NAV_LINKS = [
   { label: 'PROJECTS', href: '#' },
@@ -65,7 +66,7 @@ const NAV_LINKS = [
     <!-- Navigation -->
     <header>
       <nav class="topnav">
-        <a href="/" class="logo">🧠 <span>REMOTELY HUMAN</span></a>
+        <a href="/" class="logo"><Mark size={22} /> <span>REMOTELY HUMAN</span></a>
         <ul class="desktop-menu">
           {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
         </ul>
@@ -75,7 +76,7 @@ const NAV_LINKS = [
       </nav>
       <div id="mobile-overlay" class="mobile-overlay">
         <div class="mobile-top">
-          <a href="/" class="logo">🧠 <span>REMOTELY HUMAN</span></a>
+          <a href="/" class="logo"><Mark size={22} /> <span>REMOTELY HUMAN</span></a>
           <button id="menu-close" class="menu-btn" aria-label="Close menu">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
           </button>
@@ -366,7 +367,7 @@ const NAV_LINKS = [
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.2em;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   .liquid-glass h3 {
     font-size: 18px;
@@ -394,7 +395,7 @@ const NAV_LINKS = [
     font-size: 11px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   h1 {
@@ -425,7 +426,7 @@ const NAV_LINKS = [
     gap: 0.6rem;
     border-radius: 999px;
     background: var(--accent);
-    color: #070b0a;
+    color: var(--accent-contrast);
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.1em;
@@ -435,7 +436,7 @@ const NAV_LINKS = [
   }
   .cta:hover {
     background: var(--accent-hover);
-    color: #070b0a;
+    color: var(--accent-contrast);
     transform: scale(1.03);
   }
   .cta:active {

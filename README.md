@@ -18,10 +18,13 @@ static output, served by nginx, deployed via Coolify on push to `main`.
 
 ```bash
 # add src/content/notes/my-note.md, then:
-git add . && git commit -m "note: my note" && git push
+git add . && git commit -m "note: my note"
+./scripts/publish.sh
 ```
 
-Coolify rebuilds and redeploys automatically.
+`publish.sh` pushes to GitHub and triggers the Coolify deploy over the mesh
+(the Coolify panel is mesh-only, so GitHub webhooks can't reach it; publishing
+therefore happens from a mesh-connected machine).
 
 ## Local dev
 

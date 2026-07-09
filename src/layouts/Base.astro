@@ -16,15 +16,6 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/brand/rh-mark-padded.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <script is:inline>
-      // Purple is the default; ?theme=green sticks as the comparison variant,
-      // any other ?theme= value resets to default.
-      const themeParam = new URLSearchParams(location.search).get('theme')
-      if (themeParam === 'green') localStorage.setItem('rh-theme', 'green')
-      else if (themeParam) localStorage.removeItem('rh-theme')
-      if (localStorage.getItem('rh-theme') === 'green')
-        document.documentElement.dataset.theme = 'green'
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -54,15 +45,6 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-serif: 'Instrument Serif', Georgia, serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  }
-
-  /* Jay's call 2026-07-09: brand purple is the default; green survives in the
-     background glow. ?theme=green flips back for comparison. */
-  :root[data-theme='green'] {
-    --accent: #5ed29c;
-    --accent-hover: #7de3b1;
-    --accent-text: #5ed29c;
-    --accent-contrast: #070b0a;
   }
 
   * {

@@ -90,9 +90,12 @@ const NAV_LINKS = [
     <!-- Hero content -->
     <div class="content">
       <div class="liquid-glass">
-        <span class="tag">[ EST. 2025 ]</span>
-        <div>
-          <h3>Quietly <em>shipping</em> across many sectors.</h3>
+        <span class="tag">[ RH-2026-OPS ]</span>
+        <div class="meta">
+          <span>Est. 2025</span>
+          <span>Sheridan, Wyoming</span>
+          <span>44.7972° N</span>
+          <span>106.9562° W</span>
         </div>
       </div>
 
@@ -222,7 +225,7 @@ const NAV_LINKS = [
     justify-content: space-between;
   }
   .logo {
-    color: #fff;
+    color: #e6e6e6;
     font-family: var(--font-jakarta);
     font-weight: 700;
     font-size: 15px;
@@ -233,6 +236,9 @@ const NAV_LINKS = [
   }
   .logo:hover {
     color: #fff;
+  }
+  .logo svg {
+    color: #8b5cf6;
   }
   .desktop-menu {
     display: none;
@@ -368,23 +374,18 @@ const NAV_LINKS = [
     letter-spacing: 0.2em;
     color: var(--accent-text);
   }
-  .liquid-glass h3 {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.35;
-    color: #fff;
-  }
-  .liquid-glass h3 em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 1.15em;
-  }
-  .liquid-glass p {
-    margin-top: 0.5rem;
+  .liquid-glass .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
     font-size: 11px;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .liquid-glass .meta span:first-child {
+    color: #fff;
   }
 
   /* ——— typography ——— */

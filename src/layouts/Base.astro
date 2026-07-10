@@ -16,6 +16,13 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/brand/rh-mark-padded.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      // Theme before first paint: stored choice wins, otherwise dark (brand default)
+      ;(function () {
+        var t = localStorage.getItem('rh-theme')
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark')
+      })()
+    </script>
     <script
       defer
       src="https://analytics.remotelyhuman.com/script.js"
@@ -35,22 +42,42 @@ const { title, description = 'The official home of Remotely Human. We work quiet
 </html>
 
 <style is:global>
-  :root {
-    --bg: #070b0a;
-    --panel: #0d1512;
-    --ink: #eef2f0;
-    --dim: rgba(255, 255, 255, 0.7);
-    --faint: rgba(255, 255, 255, 0.45);
-    --accent: #6c2bd9;
-    --accent-hover: #7d3ee8;
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --bg: #09070d;
+    --panel: #120e1a;
+    --ink: #f1eef7;
+    --dim: rgba(241, 238, 247, 0.68);
+    --faint: rgba(241, 238, 247, 0.42);
+    --accent: #8b5cf6;
+    --accent-hover: #a78bfa;
     --accent-text: #a78bfa;
     --accent-contrast: #ffffff;
-    --hairline: rgba(255, 255, 255, 0.1);
+    --hairline: rgba(241, 238, 247, 0.12);
+    --graph-node: 167, 139, 250;
+    --graph-link: 241, 238, 247;
     --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-serif: 'Instrument Serif', Georgia, serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+    --bg: #f7f5fb;
+    --panel: #ffffff;
+    --ink: #191426;
+    --dim: rgba(25, 20, 38, 0.68);
+    --faint: rgba(25, 20, 38, 0.45);
+    --accent: #6d28d9;
+    --accent-hover: #8b5cf6;
+    --accent-text: #6d28d9;
+    --accent-contrast: #ffffff;
+    --hairline: rgba(25, 20, 38, 0.13);
+    --graph-node: 109, 40, 217;
+    --graph-link: 25, 20, 38;
   }
 
   * {
@@ -61,7 +88,6 @@ const { title, description = 'The official home of Remotely Human. We work quiet
 
   html {
     background: var(--bg);
-    color-scheme: dark;
   }
 
   body {
@@ -71,15 +97,16 @@ const { title, description = 'The official home of Remotely Human. We work quiet
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
   }
 
   ::selection {
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-contrast);
   }
 
   a {
-    color: var(--accent);
+    color: var(--accent-text);
     text-decoration: none;
   }
   a:hover {

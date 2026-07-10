@@ -1,16 +1,6 @@
 ---
 import { getCollection } from 'astro:content'
 import Base from '../layouts/Base.astro'
-import Footer from '../components/Footer.astro'
-import Mark from '../components/Mark.astro'
-
-const NAV_LINKS = [
-  { label: 'HOME', href: '/' },
-  { label: 'BLOG', href: '/notes' },
-  { label: 'PROJECTS', href: '#' },
-  { label: 'ABOUT', href: '#' },
-  { label: 'CONTACT', href: 'https://opnform.remotelyhuman.com/forms/contact-ops-tavcjx' },
-]
 
 const notes = (await getCollection('notes'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -39,158 +29,108 @@ const fmtDate = (d: Date) =>
   <canvas id="graph-canvas" aria-hidden="true"></canvas>
   <div id="cursor-glow" aria-hidden="true"></div>
 
-  <!-- Navigation -->
-  <header>
-    <nav class="topnav">
-      <a href="/" class="logo"><Mark size={20} /> <span>REMOTELY HUMAN</span></a>
-      <div class="nav-right">
-        <ul class="desktop-menu">
-          {NAV_LINKS.map((link) => (
-            <li>
-              <a href={link.href} class={link.href === '/' ? 'active' : ''}>{link.label}</a>
-            </li>
-          ))}
-        </ul>
-        <button id="theme-toggle" class="icon-btn" aria-label="Toggle light/dark theme">
-          <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22"/><line x1="2" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22" y2="12"/><line x1="4.8" y1="4.8" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="19.2" y2="19.2"/><line x1="4.8" y1="19.2" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="19.2" y2="4.8"/></svg>
-          <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-        </button>
-        <button id="menu-open" class="icon-btn menu-btn" aria-label="Open menu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-        </button>
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">The Official Home of Remotely Human</p>
+
+        <p class="tagline-slot"><span id="hero-tagline">Don&rsquo;t give up on your dreams</span></p>
+
+        <h1 class="name">
+          <span class="name-line">Remotely</span>
+          <span class="name-line name-grad">Human</span>
+        </h1>
+
+        <p class="description">
+          We work quietly across many projects. If you received an email from
+          @remotelyhuman.com, you&rsquo;re in the right place.
+        </p>
+
+        <div class="chips">
+          <a href="/notes" class="chip chip-a">
+            <span class="dot"></span>
+            <span class="chip-label">Notes</span>
+            <span class="chip-note">// the garden</span>
+          </a>
+          <span class="amp" aria-hidden="true">&amp;</span>
+          <a href="/contact" class="chip chip-b">
+            <span class="dot"></span>
+            <span class="chip-label">Contact Ops</span>
+            <span class="chip-note">// replies: eventual</span>
+          </a>
+        </div>
       </div>
-    </nav>
-    <div id="mobile-overlay" class="mobile-overlay" role="dialog" aria-modal="true" aria-label="Navigation menu">
-      <div class="mobile-top">
-        <a href="/" class="logo"><Mark size={20} /> <span>REMOTELY HUMAN</span></a>
-        <button id="menu-close" class="icon-btn" aria-label="Close menu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
-        </button>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="scroll-track"><div class="scroll-thumb"></div></div>
       </div>
-      <ul>
-        {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-      </ul>
-    </div>
-  </header>
+    </section>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-inner">
-      <p class="eyebrow">The Official Home of Remotely Human</p>
-
-      <p class="tagline-slot"><span id="hero-tagline">Don&rsquo;t give up on your dreams</span></p>
-
-      <h1 class="name-line">Remotely</h1>
-      <h1 class="name-line name-grad">Human</h1>
-
-      <p class="description">
-        We work quietly across many projects. If you received an email from
-        @remotelyhuman.com, you&rsquo;re in the right place.
-      </p>
-
-      <div class="chips">
-        <a href="/notes" class="chip chip-a">
-          <span class="dot"></span>
-          <span class="chip-label">Blog</span>
-          <span class="chip-note">// notes &amp; posts</span>
-        </a>
-        <span class="amp" aria-hidden="true">&amp;</span>
-        <a href="https://opnform.remotelyhuman.com/forms/contact-ops-tavcjx" class="chip chip-b">
-          <span class="dot"></span>
-          <span class="chip-label">Contact Ops</span>
-          <span class="chip-note">// replies: eventual</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="scroll-hint" aria-hidden="true">
-      <span>Scroll</span>
-      <div class="scroll-track"><div class="scroll-thumb"></div></div>
-    </div>
-  </section>
-
-  <!-- What we do -->
-  <section class="band">
-    <div class="band-inner">
-      <div class="band-head reveal-up">
-        <span class="kicker">What We Do</span>
-        <h2><span class="uword u1">Notes</span> &amp; <span class="uword u2">ops</span></h2>
-      </div>
-      <div class="cards">
-        <a href="/notes" class="card reveal-up">
-          <span class="card-kicker">Writing</span>
-          <h3>The garden</h3>
-          <p>
-            A garden, not a blog. Notes land here when a conversation or a build
-            produces something worth keeping — no theme, no schedule.
-          </p>
-          <span class="card-cta"><span class="card-rule"></span>Read Notes</span>
-        </a>
-        <a href="https://opnform.remotelyhuman.com/forms/contact-ops-tavcjx" class="card reveal-up">
-          <span class="card-kicker">Operations</span>
-          <h3>The ops desk</h3>
-          <p>
-            Status: dreaming. Keep sleeping. The desk reads everything that
-            comes through — say hello and we&rsquo;ll get back to you, eventually.
-          </p>
-          <span class="card-cta"><span class="card-rule"></span>Contact Ops</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Latest notes -->
-  {notes.length > 0 && (
+    <!-- What we do -->
     <section class="band">
       <div class="band-inner">
         <div class="band-head reveal-up">
-          <span class="kicker">Latest</span>
-          <h2>From the notes</h2>
+          <span class="kicker">What We Do</span>
+          <h2><span class="uword u1">Notes</span> &amp; <span class="uword u2">ops</span></h2>
         </div>
-        <div class="note-grid">
-          {notes.map((note) => (
-            <a href={`/notes/${note.id}`} class="note-card reveal-up">
-              <span class="note-date">{fmtDate(note.data.date)}</span>
-              <h3>{note.data.title}</h3>
-              {note.data.description && <p>{note.data.description}</p>}
-              <span class="note-read">Read <span class="arrow">→</span></span>
-            </a>
-          ))}
-        </div>
-        <div class="band-foot reveal-up">
-          <a href="/notes" class="chip chip-a">
-            <span class="dot"></span>
-            <span class="chip-label">All Notes</span>
-            <span class="chip-note">→</span>
+        <div class="cards">
+          <a href="/notes" class="card reveal-up">
+            <span class="card-kicker">Writing</span>
+            <h3>The garden</h3>
+            <p>
+              A garden, not a blog. Notes land here when a conversation or a build
+              produces something worth keeping — no theme, no schedule.
+            </p>
+            <span class="card-cta"><span class="card-rule"></span>Read Notes</span>
+          </a>
+          <a href="/contact" class="card reveal-up">
+            <span class="card-kicker">Operations</span>
+            <h3>The ops desk</h3>
+            <p>
+              Status: dreaming. Keep sleeping. The desk reads everything that
+              comes through — say hello and we&rsquo;ll get back to you, eventually.
+            </p>
+            <span class="card-cta"><span class="card-rule"></span>Contact Ops</span>
           </a>
         </div>
       </div>
     </section>
-  )}
 
-  <Footer />
+    <!-- Latest notes -->
+    {notes.length > 0 && (
+      <section class="band">
+        <div class="band-inner">
+          <div class="band-head reveal-up">
+            <span class="kicker">Latest</span>
+            <h2>From the notes</h2>
+          </div>
+          <div class="note-grid">
+            {notes.map((note) => (
+              <a href={`/notes/${note.id}`} class="note-card reveal-up">
+                <span class="note-date">{fmtDate(note.data.date)}</span>
+                <h3>{note.data.title}</h3>
+                {note.data.description && <p>{note.data.description}</p>}
+                <span class="note-read">Read <span class="arrow">→</span></span>
+              </a>
+            ))}
+          </div>
+          <div class="band-foot reveal-up">
+            <a href="/notes" class="chip chip-a">
+              <span class="dot"></span>
+              <span class="chip-label">All Notes</span>
+              <span class="chip-note">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    )}
+  </main>
 </Base>
 
 <script>
-  // ————— theme toggle —————
-  const root = document.documentElement
-  document.getElementById('theme-toggle')?.addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
-    root.setAttribute('data-theme', next)
-    localStorage.setItem('rh-theme', next)
-  })
-
-  // ————— nav background on scroll —————
-  const hdr = document.querySelector('header')
-  window.addEventListener('scroll', () => {
-    hdr?.classList.toggle('scrolled', window.scrollY > 40)
-  }, { passive: true })
-
-  // ————— mobile menu —————
-  const overlay = document.getElementById('mobile-overlay')
-  document.getElementById('menu-open')?.addEventListener('click', () => overlay?.classList.add('open'))
-  document.getElementById('menu-close')?.addEventListener('click', () => overlay?.classList.remove('open'))
-  overlay?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => overlay.classList.remove('open')))
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   // ————— cycling tagline —————
   const TAGLINES = [
@@ -203,9 +143,10 @@ const fmtDate = (d: Date) =>
     'Replies: eventual',
   ]
   const tagEl = document.getElementById('hero-tagline')
-  if (tagEl) {
+  if (tagEl && !reduced) {
     let ti = 0
     setInterval(() => {
+      if (document.hidden) return
       tagEl.style.opacity = '0'
       tagEl.style.transform = 'translateY(8px)'
       setTimeout(() => {
@@ -217,49 +158,84 @@ const fmtDate = (d: Date) =>
     }, 2800)
   }
 
-  // ————— cursor glow —————
+  // ————— cursor glow (idles when converged, pauses when hidden) —————
   const glow = document.getElementById('cursor-glow')
   if (glow && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     let mx = -500, my = -500, gx = -500, gy = -500
+    let glowRaf = 0
     const follow = () => {
-      gx += (mx - gx) * 0.08
-      gy += (my - gy) * 0.08
+      const dx = mx - gx
+      const dy = my - gy
+      if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) {
+        glowRaf = 0
+        return
+      }
+      gx += dx * 0.08
+      gy += dy * 0.08
       glow.style.transform = `translate(${gx}px, ${gy}px)`
-      requestAnimationFrame(follow)
+      glowRaf = requestAnimationFrame(follow)
     }
     document.addEventListener('mousemove', (e) => {
       mx = e.clientX
       my = e.clientY
       glow.classList.add('active')
+      if (!glowRaf && !document.hidden) glowRaf = requestAnimationFrame(follow)
     }, { passive: true })
     document.addEventListener('mouseleave', () => glow.classList.remove('active'), { passive: true })
-    follow()
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && glowRaf) {
+        cancelAnimationFrame(glowRaf)
+        glowRaf = 0
+      }
+    })
   }
 
   // ————— memory-graph constellation —————
   const canvas = document.getElementById('graph-canvas') as HTMLCanvasElement | null
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (canvas && !reduced) {
     const ctx = canvas.getContext('2d')
     if (ctx) {
       const COUNT = window.innerWidth < 768 ? 28 : 70
       const LINK = 130
+      const LINK2 = LINK * LINK
       const MOUSE_R = 190
+      const DPR = Math.min(window.devicePixelRatio || 1, 2)
       let W = 0
       let H = 0
       const mouse = { x: -9999, y: -9999 }
       let raf = 0
 
-      type Node = { x: number; y: number; tx: number; ty: number; vx: number; vy: number; r: number; ph: number }
-      const nodes: Node[] = []
-
       const resize = () => {
-        W = canvas.width = window.innerWidth
-        H = canvas.height = window.innerHeight
+        W = window.innerWidth
+        H = window.innerHeight
+        canvas.width = W * DPR
+        canvas.height = H * DPR
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0)
       }
       resize()
       window.addEventListener('resize', resize, { passive: true })
 
+      // palette cached; refreshed only when the theme attribute changes
+      let nodeRGB = '167, 139, 250'
+      let linkRGB = '241, 238, 247'
+      let nodeAlpha = 0.9
+      let linkAlpha = 0.16
+      const readPalette = () => {
+        const styles = getComputedStyle(document.documentElement)
+        nodeRGB = styles.getPropertyValue('--graph-node').trim() || nodeRGB
+        linkRGB = styles.getPropertyValue('--graph-link').trim() || linkRGB
+        const dark = document.documentElement.getAttribute('data-theme') !== 'light'
+        nodeAlpha = dark ? 0.9 : 0.65
+        linkAlpha = dark ? 0.16 : 0.13
+      }
+      readPalette()
+      new MutationObserver(readPalette).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      })
+
+      type Node = { x: number; y: number; tx: number; ty: number; vx: number; vy: number; r: number; ph: number }
+      const nodes: Node[] = []
       for (let i = 0; i < COUNT; i++) {
         nodes.push({
           x: Math.random() * W,
@@ -276,15 +252,23 @@ const fmtDate = (d: Date) =>
       window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY }, { passive: true })
       window.addEventListener('mouseout', () => { mouse.x = -9999; mouse.y = -9999 }, { passive: true })
 
+      // half-rate when the hero is out of view (battery), full rate when it's the show
+      let heroVisible = true
+      const hero = document.querySelector('.hero')
+      if (hero) {
+        new IntersectionObserver((entries) => {
+          heroVisible = entries[0]?.isIntersecting ?? true
+        }).observe(hero)
+      }
+      let frameFlip = false
+
       const frame = () => {
+        raf = requestAnimationFrame(frame)
+        frameFlip = !frameFlip
+        if (!heroVisible && frameFlip) return
+
         const t = performance.now() / 1000
         ctx.clearRect(0, 0, W, H)
-        const styles = getComputedStyle(document.documentElement)
-        const nodeRGB = styles.getPropertyValue('--graph-node').trim() || '167, 139, 250'
-        const linkRGB = styles.getPropertyValue('--graph-link').trim() || '241, 238, 247'
-        const dark = document.documentElement.getAttribute('data-theme') !== 'light'
-        const nodeAlpha = dark ? 0.9 : 0.65
-        const linkAlpha = dark ? 0.16 : 0.13
 
         for (const n of nodes) {
           // drift toward a wandering target; retarget when close
@@ -320,14 +304,17 @@ const fmtDate = (d: Date) =>
           if (n.y > H + 80) n.vy -= 0.015
         }
 
-        // edges between nearby nodes
+        // edges between nearby nodes (squared-distance early out)
         ctx.lineWidth = 1
         for (let i = 0; i < nodes.length; i++) {
           for (let j = i + 1; j < nodes.length; j++) {
             const a = nodes[i]
             const b = nodes[j]
-            const d = Math.hypot(a.x - b.x, a.y - b.y)
-            if (d < LINK) {
+            const ex = a.x - b.x
+            const ey = a.y - b.y
+            const d2 = ex * ex + ey * ey
+            if (d2 < LINK2) {
+              const d = Math.sqrt(d2)
               ctx.strokeStyle = `rgba(${linkRGB}, ${(1 - d / LINK) * linkAlpha})`
               ctx.beginPath()
               ctx.moveTo(a.x, a.y)
@@ -357,8 +344,6 @@ const fmtDate = (d: Date) =>
           ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
           ctx.fill()
         }
-
-        raf = requestAnimationFrame(frame)
       }
       raf = requestAnimationFrame(frame)
 
@@ -393,6 +378,9 @@ const fmtDate = (d: Date) =>
     position: fixed;
     inset: 0;
     z-index: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     pointer-events: none;
     opacity: 0.8;
   }
@@ -413,167 +401,12 @@ const fmtDate = (d: Date) =>
     opacity: 1;
   }
 
-  /* ——— navigation ——— */
-  header {
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 40;
-    border-bottom: 1px solid transparent;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-  header.scrolled {
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom-color: var(--hairline);
-  }
-  .topnav {
-    max-width: 87.5rem;
-    margin: 0 auto;
-    height: 4.5rem;
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .logo {
-    color: var(--ink);
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    opacity: 0.85;
-    transition: opacity 0.3s ease;
-  }
-  .logo:hover {
-    color: var(--ink);
-    opacity: 1;
-  }
-  .logo :global(svg) {
-    color: var(--accent);
-  }
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
-  }
-  .desktop-menu {
-    display: none;
-    list-style: none;
-    gap: 2rem;
-  }
-  .desktop-menu a {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--dim);
-    position: relative;
-    transition: color 0.3s ease;
-  }
-  .desktop-menu a::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    height: 1px;
-    width: 0;
-    background: var(--ink);
-    transition: width 0.3s ease;
-  }
-  .desktop-menu a:hover {
-    color: var(--ink);
-  }
-  .desktop-menu a:hover::after {
-    width: 100%;
-  }
-  .desktop-menu a.active {
-    color: var(--accent-text);
-  }
-  .desktop-menu a.active::after {
-    width: 100%;
-    background: var(--accent);
-  }
-  .icon-btn {
-    background: none;
-    border: none;
-    color: var(--dim);
-    cursor: pointer;
-    display: flex;
-    padding: 0.3rem;
-    transition: color 0.3s ease;
-  }
-  .icon-btn:hover {
-    color: var(--ink);
-  }
-  :global([data-theme='dark']) .icon-moon {
-    display: none;
-  }
-  :global([data-theme='light']) .icon-sun {
-    display: none;
-  }
-  .menu-btn {
-    display: flex;
-  }
-  @media (min-width: 768px) {
-    .desktop-menu {
-      display: flex;
-    }
-    .menu-btn {
-      display: none;
-    }
-  }
-
-  .mobile-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-  .mobile-overlay.open {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .mobile-top {
-    height: 4.5rem;
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .mobile-overlay ul {
-    list-style: none;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2.2rem;
-  }
-  .mobile-overlay ul a {
-    font-family: var(--font-display);
-    font-size: 2.6rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-  }
-  .mobile-overlay ul a:hover {
-    color: var(--accent-text);
-  }
-
   /* ——— hero ——— */
   .hero {
     position: relative;
     z-index: 10;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -605,13 +438,17 @@ const fmtDate = (d: Date) =>
     color: var(--accent-text);
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
-  .name-line {
+  .name {
     font-family: var(--font-display);
     font-weight: 500;
     font-size: clamp(3.5rem, 14vw, 8.5rem);
     line-height: 0.9;
     letter-spacing: -0.045em;
     color: var(--ink);
+    text-wrap: balance;
+  }
+  .name-line {
+    display: block;
   }
   .name-grad {
     background: linear-gradient(120deg, var(--ink) 0%, var(--accent-text) 45%, var(--accent) 100%);
@@ -625,6 +462,7 @@ const fmtDate = (d: Date) =>
     font-size: 14.5px;
     line-height: 1.8;
     color: var(--dim);
+    text-wrap: pretty;
   }
 
   .chips {
@@ -655,12 +493,18 @@ const fmtDate = (d: Date) =>
   .chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.7rem;
     padding: 1rem 2rem;
     border: 1px solid var(--hairline);
     border-radius: 999px;
     color: var(--ink);
     transition: border-color 0.4s ease, background 0.4s ease, transform 0.2s ease;
+  }
+  @media (max-width: 767px) {
+    .chips .chip {
+      width: min(100%, 300px);
+    }
   }
   .chip .dot {
     width: 7px;
@@ -703,9 +547,14 @@ const fmtDate = (d: Date) =>
     align-items: center;
     gap: 0.7rem;
   }
+  @media (max-height: 700px) {
+    .scroll-hint {
+      display: none;
+    }
+  }
   .scroll-hint span {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--faint);
@@ -730,6 +579,12 @@ const fmtDate = (d: Date) =>
     }
     100% {
       top: 2.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-thumb {
+      animation: none;
+      top: 0.75rem;
     }
   }
 
@@ -762,6 +617,7 @@ const fmtDate = (d: Date) =>
     letter-spacing: -0.04em;
     line-height: 1.05;
     color: var(--ink);
+    text-wrap: balance;
   }
   .uword {
     position: relative;
@@ -846,6 +702,7 @@ const fmtDate = (d: Date) =>
     line-height: 1.75;
     max-width: 28rem;
     margin-bottom: 2.25rem;
+    text-wrap: pretty;
   }
   .card-cta {
     display: inline-flex;
@@ -880,7 +737,7 @@ const fmtDate = (d: Date) =>
   }
   @media (min-width: 768px) {
     .note-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
     }
   }
@@ -917,6 +774,7 @@ const fmtDate = (d: Date) =>
     font-size: 14px;
     line-height: 1.7;
     margin-bottom: 1.75rem;
+    text-wrap: pretty;
   }
   .note-read {
     margin-top: auto;
@@ -941,7 +799,7 @@ const fmtDate = (d: Date) =>
   }
   .band-foot {
     margin-top: 3.5rem;
-    text-align: center;
+    text-align: left;
   }
 
   /* ——— reveal ——— */

@@ -1,6 +1,5 @@
 ---
 import Base from './Base.astro'
-import Footer from '../components/Footer.astro'
 
 interface Props {
   title: string
@@ -10,7 +9,7 @@ const { title, heading } = Astro.props
 ---
 
 <Base title={title}>
-  <main>
+  <main id="main">
     <a class="back" href="/">← Back to site</a>
     <h1>{heading}</h1>
     <p class="dates">
@@ -21,14 +20,13 @@ const { title, heading } = Astro.props
       <slot />
     </article>
   </main>
-  <Footer />
 </Base>
 
 <style is:global>
   main {
     max-width: 42rem;
     margin: 0 auto;
-    padding: 4rem 1.5rem 5rem;
+    padding: 8rem 1.5rem 5rem;
   }
   .back {
     font-family: var(--font-mono);
@@ -41,9 +39,9 @@ const { title, heading } = Astro.props
   main h1 {
     margin-top: 1.5rem;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(1.6rem, 5vw, 2.1rem);
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    letter-spacing: -0.03em;
   }
   .dates {
     margin-top: 0.75rem;
@@ -90,5 +88,13 @@ const { title, heading } = Astro.props
     font-family: var(--font-mono);
     font-size: 0.85rem;
     line-height: 2;
+  }
+  .c-label {
+    display: inline-block;
+    min-width: 2.6em;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-text);
   }
 </style>

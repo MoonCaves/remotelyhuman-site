@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
 import Base from '../../layouts/Base.astro'
-import Footer from '../../components/Footer.astro'
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes')
@@ -20,8 +19,11 @@ const fmt = new Intl.DateTimeFormat('en-US', {
 })
 ---
 
-<Base title={`${note.data.title} — Remotely Human`} description={note.data.description}>
-  <main>
+<Base
+  title={`${note.data.title} — Remotely Human`}
+  description={note.data.description ?? `${note.data.title} — a note from the Remotely Human garden.`}
+>
+  <main id="main">
     <a class="back" href="/notes">← All notes</a>
     <h1>{note.data.title}</h1>
     <time datetime={note.data.date.toISOString()}>{fmt.format(note.data.date)}</time>
@@ -29,15 +31,14 @@ const fmt = new Intl.DateTimeFormat('en-US', {
       <Content />
     </article>
   </main>
-  <Footer />
 </Base>
 
 <style is:global>
   main {
     max-width: 42rem;
     margin: 0 auto;
-    padding: 4rem 1.5rem 5rem;
-    min-height: calc(100vh - 12rem);
+    padding: 8rem 1.5rem 5rem;
+    min-height: 60vh;
   }
   .back {
     font-family: var(--font-mono);
@@ -50,9 +51,9 @@ const fmt = new Intl.DateTimeFormat('en-US', {
   main h1 {
     margin-top: 1.5rem;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(1.6rem, 5vw, 2.1rem);
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    letter-spacing: -0.03em;
   }
   main > time {
     display: block;

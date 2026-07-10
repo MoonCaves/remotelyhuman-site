@@ -1,10 +1,12 @@
 import { defineConfig } from 'astro/config'
+import sitemap from '@astrojs/sitemap'
 import wikiLink from 'remark-wiki-link'
 
 export default defineConfig({
   site: 'https://remotelyhuman.com',
   trailingSlash: 'never',
   build: { format: 'file' },
+  integrations: [sitemap()],
   redirects: {
     '/privacy-policy': '/privacy',
     '/terms-of-service': '/terms',

@@ -3,19 +3,26 @@ const year = new Date().getFullYear()
 ---
 
 <footer>
-  <nav>
+  <nav aria-label="Footer">
     <a href="/notes">notes</a>
     <span aria-hidden="true">·</span>
     <a href="/privacy">privacy</a>
     <span aria-hidden="true">·</span>
     <a href="/terms">terms</a>
+    <span aria-hidden="true">·</span>
+    <a href="/rss.xml">rss</a>
   </nav>
   <p>© {year} Remotely Human LLC</p>
 </footer>
 
 <style>
   footer {
+    position: relative;
+    z-index: 10;
     border-top: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 1.75rem 1.5rem 2.25rem;
     display: flex;
     flex-direction: column;

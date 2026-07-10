@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro'
+---
+
+<Base
+  title="Contact Ops — Remotely Human"
+  description="Reach the Remotely Human ops desk. The desk reads everything. Replies: eventual."
+>
+  <main id="main">
+    <span class="kicker">Operations</span>
+    <h1>Contact Ops</h1>
+    <p class="sub">
+      The desk reads everything that comes through. Say hello — we&rsquo;ll get
+      back to you, eventually.
+    </p>
+    <div class="form-wrap">
+      <iframe
+        src="https://opnform.remotelyhuman.com/forms/contact-ops-tavcjx"
+        title="Contact Ops form"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 5rem;
+  }
+  .kicker {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .sub {
+    margin-top: 0.9rem;
+    color: var(--dim);
+    font-size: 0.95rem;
+    text-wrap: pretty;
+  }
+  .form-wrap {
+    margin-top: 2.5rem;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  iframe {
+    display: block;
+    width: 100%;
+    height: 640px;
+    border: none;
+  }
+</style>

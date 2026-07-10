@@ -419,8 +419,8 @@ const fmtDate = (d: Date) =>
   }
   .eyebrow {
     font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.3em;
+    font-size: var(--label-md);
+    letter-spacing: var(--track-wide);
     text-transform: uppercase;
     color: var(--dim);
     margin-bottom: 1.75rem;
@@ -459,7 +459,7 @@ const fmtDate = (d: Date) =>
   .description {
     margin: 2.25rem auto 0;
     max-width: 480px;
-    font-size: 14.5px;
+    font-size: var(--text-sm);
     line-height: 1.8;
     color: var(--dim);
     text-wrap: pretty;
@@ -482,7 +482,7 @@ const fmtDate = (d: Date) =>
   .amp {
     display: none;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--label-md);
     color: var(--faint);
   }
   @media (min-width: 768px) {
@@ -517,13 +517,14 @@ const fmtDate = (d: Date) =>
   }
   .chip-label {
     font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    font-size: var(--label-md);
+    letter-spacing: var(--track-tight);
     text-transform: uppercase;
   }
   .chip-note {
+    /* deliberate exception: "// comment" style, untracked like code */
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--label-sm);
     color: var(--faint);
     transition: color 0.3s ease;
   }
@@ -554,8 +555,8 @@ const fmtDate = (d: Date) =>
   }
   .scroll-hint span {
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.3em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-wide);
     text-transform: uppercase;
     color: var(--faint);
   }
@@ -604,8 +605,8 @@ const fmtDate = (d: Date) =>
   .kicker {
     display: block;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.3em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-wide);
     text-transform: uppercase;
     color: var(--dim);
     margin-bottom: 1rem;
@@ -683,8 +684,8 @@ const fmtDate = (d: Date) =>
   .card-kicker {
     display: block;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.3em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-wide);
     text-transform: uppercase;
     color: var(--accent-text);
     margin-bottom: 1.4rem;
@@ -698,7 +699,7 @@ const fmtDate = (d: Date) =>
   }
   .card p {
     color: var(--dim);
-    font-size: 15.5px;
+    font-size: var(--text-md);
     line-height: 1.75;
     max-width: 28rem;
     margin-bottom: 2.25rem;
@@ -709,8 +710,8 @@ const fmtDate = (d: Date) =>
     align-items: center;
     gap: 0.75rem;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-tight);
     text-transform: uppercase;
     color: var(--dim);
     transition: color 0.3s ease;
@@ -755,8 +756,8 @@ const fmtDate = (d: Date) =>
   }
   .note-date {
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-tight);
     text-transform: uppercase;
     color: var(--faint);
     margin-bottom: 1.1rem;
@@ -771,7 +772,7 @@ const fmtDate = (d: Date) =>
   }
   .note-card p {
     color: var(--dim);
-    font-size: 14px;
+    font-size: var(--text-sm);
     line-height: 1.7;
     margin-bottom: 1.75rem;
     text-wrap: pretty;
@@ -782,8 +783,8 @@ const fmtDate = (d: Date) =>
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-tight);
     text-transform: uppercase;
     color: var(--dim);
     transition: color 0.3s ease;

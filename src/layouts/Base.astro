@@ -102,6 +102,15 @@ const jsonLd = JSON.stringify([
     --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    /* type scale: body copy resolves to these three, mono labels to the pairs below.
+       Deliberate exceptions: hero tagline (12px/0.25em focal accent), chip-note
+       ("// comment" style, untracked like code), footer nav (lowercase 12px). */
+    --text-sm: 14px;
+    --text-md: 15px;
+    --label-sm: 10px;
+    --label-md: 11px;
+    --track-tight: 0.2em;
+    --track-wide: 0.3em;
   }
 
   :root[data-theme='light'] {

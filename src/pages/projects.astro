@@ -1,0 +1,227 @@
+---
+import Base from '../layouts/Base.astro'
+---
+
+<Base
+  title="Projects — Remotely Human"
+  description="Many projects. Some are live, some are sleeping. Cards fill in as things wake up."
+>
+  <main id="main">
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+
+    <div class="head">
+      <span class="kicker">Projects</span>
+      <h1>Many projects</h1>
+      <p class="sub">
+        Some are live, some are sleeping. Cards fill in as things wake up.
+      </p>
+    </div>
+
+    <div class="grid">
+      <div class="liquid-glass">
+        <span class="tag">[ LIVE ]</span>
+        <div>
+          <h3>Remotely <em>Human</em></h3>
+          <p>This site — the quiet home base. You&rsquo;re soaking in it.</p>
+        </div>
+      </div>
+
+      <div class="liquid-glass">
+        <span class="tag">[ LIVE ]</span>
+        <div>
+          <h3>PaymentVerse</h3>
+          <p>A payments property. The story lands when it&rsquo;s ready.</p>
+        </div>
+      </div>
+
+      <div class="liquid-glass">
+        <span class="tag">[ BUILDING ]</span>
+        <div>
+          <h3>The memory <em>garden</em></h3>
+          <p>Persistent memory for a fleet of agents. Nothing worth keeping gets forgotten.</p>
+        </div>
+      </div>
+
+      <div class="liquid-glass">
+        <span class="tag">[ BUILDING ]</span>
+        <div>
+          <h3>The agent <em>fleet</em></h3>
+          <p>Many hands, one brain. Quiet operations, always on.</p>
+        </div>
+      </div>
+
+      <div class="liquid-glass">
+        <span class="tag">[ BUILDING ]</span>
+        <div>
+          <h3>Agent monitor</h3>
+          <p>Live eyes on everything the fleet is doing — every session, every desk.</p>
+        </div>
+      </div>
+
+      <div class="liquid-glass">
+        <span class="tag">[ SOON ]</span>
+        <div>
+          <h3>Keep <em>sleeping</em></h3>
+          <p>Something is dreaming here. This card is a placeholder, on purpose.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main {
+    position: relative;
+    max-width: 87.5rem;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 6rem;
+    overflow: hidden;
+  }
+
+  /* ——— ambient glows: the backdrop the glass blurs ——— */
+  .glow {
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .glow-a {
+    top: 6rem;
+    left: -8rem;
+    width: 640px;
+    height: 640px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, transparent 65%);
+  }
+  .glow-b {
+    bottom: -6rem;
+    right: -10rem;
+    width: 720px;
+    height: 720px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 65%);
+  }
+
+  .head {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 4rem;
+  }
+  .kicker {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--label-sm);
+    letter-spacing: var(--track-wide);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.25rem, 6vw, 4.5rem);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .sub {
+    margin-top: 0.9rem;
+    color: var(--dim);
+    font-size: var(--text-sm);
+    text-wrap: pretty;
+  }
+
+  .grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  /* ——— liquid glass card (recipe from the original v2 hero, verbatim) ——— */
+  .liquid-glass {
+    min-height: 220px;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    text-align: left;
+    position: relative;
+    isolation: isolate;
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.12) 50%,
+      rgba(255, 255, 255, 0.35) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  :root[data-theme='light'] .liquid-glass {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  }
+  :root[data-theme='light'] .liquid-glass::before {
+    background: linear-gradient(
+      180deg,
+      rgba(25, 20, 38, 0.28) 0%,
+      rgba(25, 20, 38, 0.08) 50%,
+      rgba(25, 20, 38, 0.2) 100%
+    );
+  }
+  .liquid-glass .tag {
+    font-family: var(--font-mono);
+    font-size: var(--label-md);
+    font-weight: 500;
+    letter-spacing: var(--track-tight);
+    color: var(--accent-text);
+  }
+  .liquid-glass h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .liquid-glass h3 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+  .liquid-glass p {
+    margin-top: 0.5rem;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--dim);
+    text-wrap: pretty;
+  }
+</style>

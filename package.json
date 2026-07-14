@@ -13,6 +13,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^5.10.0",
     "hls.js": "^1.6.16",
+    "page-agent": "^1.12.1",
     "remark-wiki-link": "^2.0.1"
   }
 }

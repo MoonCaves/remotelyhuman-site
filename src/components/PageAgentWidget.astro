@@ -1,0 +1,109 @@
+{/*
+  page-agent widget (github.com/alibaba/page-agent) — self-hosted library build,
+  same pattern as paymentverse-site (source + npm dist audited there 2026-07-14:
+  the only network call is POST {baseURL}/chat/completions plus a same-origin
+  /llms.txt fetch). Never ship the vendor's jsDelivr demo bundle — it routes
+  page data through Alibaba's hosted test LLM.
+  Backend: same-origin nginx proxy -> LiteLLM gateway. The key is
+  public-by-design, scoped to the rh-widget alias and rate/budget-limited
+  (key alias: remotelyhuman-widget). Which model rh-widget resolves to is a
+  gateway-side decision — see AGENTS.md.
+  Keep this file, /public/llms.txt, and AGENTS.md in sync as pages grow.
+*/}
+<script>
+  // Per-route guidance injected into the agent's prompt on every step.
+  // Add an entry when a new page ships (see AGENTS.md).
+  const PAGE_INSTRUCTIONS: Record<string, string> = {
+    '/':
+      'Home. Top to bottom: header (BLOG, CONTACT OPS, theme toggle), hero with cycling tagline, "Notes & ops" cards (The garden / The ops desk), "From the notes" grid, footer. Full page map is in llms.txt.',
+    '/projects': 'Projects: six project cards with short descriptions.',
+    '/contact':
+      'Contact. The form is a cross-origin iframe you cannot type into — scroll it into view and tell the visitor to fill it in themselves.',
+    '/notes':
+      'Notes index — the digital garden. Each entry links to a full note page.',
+  }
+
+  const pageInstructionFor = (pathname: string): string | undefined => {
+    const path = pathname.replace(/\/$/, '') || '/'
+    if (path.startsWith('/notes/'))
+      return 'A single note (blog post). Related notes are wiki-linked in the body; the notes index is at /notes.'
+    return PAGE_INSTRUCTIONS[path]
+  }
+
+  // Masking rules applied to page content before it reaches the LLM.
+  // The site renders no visitor PII today; add [pattern, replacement]
+  // pairs here the moment any page starts showing user-specific data.
+  const MASKING_RULES: Array<[RegExp, string]> = []
+
+  const startPageAgent = async () => {
+    if ((window as any).pageAgent) return
+    const { PageAgent } = await import('page-agent')
+    const agent = new PageAgent({
+      model: 'rh-widget',
+      baseURL: '/api/llm',
+      apiKey: 'sk-PZqAgca4d9r0xCWNnd19yw',
+      language: 'en-US',
+      maxSteps: 15,
+      instructions: {
+        system:
+          'You are the on-page assistant for remotelyhuman.com, the site of Remotely Human — a small studio that works quietly across many software projects. Help visitors navigate the site, find notes and projects, and reach the contact page. This is a multi-page site: clicking a link to another page does a full page load, which ends your current task — so before clicking through, tell the visitor what to look for there. Never navigate away from this site. If a request is destructive or unrelated to Remotely Human, decline politely.',
+        getPageInstructions: (url) => {
+          try {
+            return pageInstructionFor(new URL(url).pathname)
+          } catch {
+            return undefined
+          }
+        },
+      },
+      // Site context for the agent from /llms.txt (same-origin fetch, cached).
+      experimentalLlmsTxt: true,
+      transformPageContent: (content) => {
+        for (const [pattern, replacement] of MASKING_RULES) {
+          content = content.replace(pattern, replacement)
+        }
+        return content
+      },
+      // Request-body escape hatch. The current OpenAI-sub lane prompt-caches
+      // automatically; if the gateway lane moves back to Claude, add top-level
+      // cache_control here (per the page-agent models doc).
+      transformRequestBody: (body) => body,
+    })
+    // The Panel wires agent.onAskUser to its own in-panel prompt, so the
+    // ask_user tool is active — the agent can ask the visitor questions.
+    ;(window as any).pageAgent = agent
+    agent.panel.wrapper.id = 'page-agent-panel'
+    agent.panel.show()
+  }
+
+  // Off the critical path: load after first idle.
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => startPageAgent(), { timeout: 8000 })
+  } else {
+    setTimeout(startPageAgent, 3000)
+  }
+</script>
+
+<style is:inline>
+  /* Panel overrides ride the #page-agent-panel id (set on panel.wrapper above).
+     !important beats the inline styles the library's show()/hide() write.
+     The [class*=…] selectors match the readable part of the library's
+     CSS-module hashes — best-effort cosmetics that degrade gracefully. */
+  #page-agent-panel {
+    /* bottom-right corner, off the page copy. The input bar hangs 48px below
+       the 40px control bar, so bottom:68px = a 20px real margin under it. */
+    bottom: 68px !important;
+    left: auto !important;
+    right: 24px !important;
+    transform: none !important;
+    /* brand the animated glow (library default is blue/magenta) */
+    --color-1: #a78bfa;
+    --color-2: #6d28d9;
+  }
+  #page-agent-panel [class*='_taskInput_']:focus {
+    border-color: rgba(139, 92, 246, 0.6) !important;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+  }
+  #page-agent-panel [class*='_thinking_'] {
+    background: #8b5cf6 !important;
+  }
+</style>

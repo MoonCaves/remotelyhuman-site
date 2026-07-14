@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
+import PageAgentWidget from '../components/PageAgentWidget.astro'
 
 interface Props {
   title: string
@@ -80,6 +81,7 @@ const jsonLd = JSON.stringify([
     <Header />
     <slot />
     <Footer />
+    <PageAgentWidget />
   </body>
 </html>
 

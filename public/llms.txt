@@ -1,0 +1,21 @@
+# Remotely Human
+
+> A small studio that works quietly across many software projects.
+
+Site: https://remotelyhuman.com — home, notes (digital garden), projects, contact.
+
+## Page map
+
+- / — hero, "Notes & ops" cards (The garden / The ops desk), "From the notes" grid.
+- /notes — the digital garden: wiki-linked notes grown from real work.
+- /projects — six current project cards.
+- /contact — contact form ("Contact Ops").
+- /privacy, /terms — legal.
+
+## For agents
+
+- The contact form is an embedded cross-origin iframe; automated page agents
+  cannot type into it. Bring it into view and hand off to the human.
+- Header links: BLOG (external blog.remotelyhuman.com), CONTACT OPS, theme toggle.
+- The on-page assistant (bottom-right panel) accepts natural-language tasks.
+- This is a multi-page static site: following a link is a full page load.

@@ -37,7 +37,8 @@
 
   const startPageAgent = async () => {
     if ((window as any).pageAgent) return
-    const { PageAgent } = await import('page-agent')
+    const { PageAgent, tool } = await import('page-agent')
+    const { z } = await import('zod/v4')
     const agent = new PageAgent({
       model: 'rh-widget',
       baseURL: '/api/llm',
@@ -67,6 +68,46 @@
       // automatically; if the gateway lane moves back to Claude, add top-level
       // cache_control here (per the page-agent models doc).
       transformRequestBody: (body) => body,
+      customTools: {
+        // Same-name override of the built-in scroll tool (the documented
+        // extension point). The library's ancestor walk stops at <body> and
+        // never treats the document itself as scrollable, so any indexed
+        // scroll on a normal page returns "No scrollable container found"
+        // (verified live 2026-07-15) — and the OpenAI-lane strict tool
+        // schema means the model always sends an index. Delegate to the
+        // library first, then fall back to an instant window scroll with an
+        // honest read-back.
+        scroll: tool({
+          description:
+            'Scroll vertically. Without index: scrolls the document. With index: scrolls the container at that index (or its nearest scrollable ancestor). Use index of a data-scrollable element to scroll a specific area.',
+          inputSchema: z.object({
+            down: z.boolean().default(true),
+            num_pages: z.number().min(0).max(10).optional().default(0.1),
+            pixels: z.number().int().min(0).optional(),
+            index: z.number().int().min(0).optional(),
+          }),
+          execute: async function (this: any, input: any) {
+            const result = await this.pageController.scroll({
+              ...input,
+              numPages: input.num_pages,
+            })
+            if (!result.message.includes('No scrollable container found'))
+              return result.message
+            const magnitude =
+              input.pixels ?? (input.num_pages ?? 0.1) * window.innerHeight
+            const dy = (input.down === false ? -1 : 1) * magnitude
+            const before = window.scrollY
+            window.scrollBy({ top: dy, behavior: 'instant' })
+            await new Promise((resolve) => setTimeout(resolve, 100))
+            const scrolled = Math.round(window.scrollY - before)
+            if (Math.abs(scrolled) < 1)
+              return dy > 0
+                ? '⚠️ Already at the bottom of the page, cannot scroll down further.'
+                : '⚠️ Already at the top of the page, cannot scroll up further.'
+            return `✅ Scrolled page by ${scrolled}px.`
+          },
+        }),
+      },
     })
     // The Panel wires agent.onAskUser to its own in-panel prompt, so the
     // ask_user tool is active — the agent can ask the visitor questions.

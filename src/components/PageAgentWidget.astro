@@ -93,8 +93,10 @@
             })
             if (!result.message.includes('No scrollable container found'))
               return result.message
+            // || not ??: the strict-schema model sends pixels/num_pages of 0
+            // to mean "unused", and a 0px scroll wastes a step.
             const magnitude =
-              input.pixels ?? (input.num_pages ?? 0.1) * window.innerHeight
+              input.pixels || (input.num_pages || 0.1) * window.innerHeight
             const dy = (input.down === false ? -1 : 1) * magnitude
             const before = window.scrollY
             window.scrollBy({ top: dy, behavior: 'instant' })

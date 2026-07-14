@@ -139,6 +139,11 @@ const jsonLd = JSON.stringify([
 
   html {
     background: var(--bg);
+    /* Explicit (same as UA default behavior) so the page-agent widget's
+       scroll action recognizes the document as a scroll container — its
+       ancestor walk requires computed overflow-y auto|scroll|overlay and
+       treats the default `visible` as unscrollable. */
+    overflow-y: auto;
   }
 
   body {

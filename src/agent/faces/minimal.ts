@@ -75,10 +75,22 @@ export const minimalFace: AgentFace = {
       chips.hidden = true
       engine.execute(task).catch(() => {})
     }
+    // Single submit handler with a mode flag. When ask_user is awaiting an
+    // answer, the submit resolves it and does NOT start a task. A second
+    // same-element listener can't win (at-target listeners fire in registration
+    // order regardless of capture), so route by flag, not by a second listener.
+    let askResolver: ((v: string) => void) | null = null
     form.addEventListener('submit', (e) => {
       e.preventDefault()
-      run(input.value)
+      const v = input.value
       input.value = ''
+      if (askResolver) {
+        const resolve = askResolver
+        askResolver = null
+        resolve(v)
+        return
+      }
+      run(v)
     })
 
     // ask_user: a nicer surface than the engine's window.prompt default.
@@ -86,14 +98,8 @@ export const minimalFace: AgentFace = {
       new Promise<string>((resolve) => {
         status.textContent = question
         open(true)
-        const onSubmit = (e: Event) => {
-          e.preventDefault()
-          form.removeEventListener('submit', onSubmit)
-          const v = input.value
-          input.value = ''
-          resolve(v)
-        }
-        form.addEventListener('submit', onSubmit)
+        input.focus()
+        askResolver = resolve
       })
 
     // Reflect the real activity stream as visible text.

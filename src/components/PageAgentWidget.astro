@@ -35,6 +35,14 @@
   // pairs here the moment any page starts showing user-specific data.
   const MASKING_RULES: Array<[RegExp, string]> = []
 
+  // Cross-task session memory (pattern from paymentverse-site 866606d).
+  // page-agent wipes its history at the start of EVERY execute()
+  // (PageAgentCore resets `history = []`) — each task is amnesiac, which
+  // makes the agent re-offer actions it just completed. We keep our own log
+  // and inject it per step via the instructions callback. Note: on this
+  // multi-page site the log also dies on navigation (full page load).
+  const SESSION_LOG: string[] = []
+
   const startPageAgent = async () => {
     if ((window as any).pageAgent) return
     const { PageAgent, tool } = await import('page-agent')
@@ -50,12 +58,20 @@
           'You are the on-page assistant for remotelyhuman.com, the site of Remotely Human — a small studio that works quietly across many software projects.',
           'Your goals, in order: (1) answer questions about Remotely Human briefly and accurately from page content; (2) help visitors find what they came for — notes, projects, or the contact page; (3) when a visitor wants to reach the team, fill the contact form (/contact) for them: use the ask_user tool to collect their real name, email, and message — never invent, guess, or reuse example contact details — then submit and confirm via the visible "Message sent" text.',
           'This is a multi-page site: clicking a link to another page does a full page load, which ends your current task — so before clicking through, tell the visitor what to look for there.',
+          'Your instructions may include a "Session so far" list — actions you already completed for this visitor. Trust it and never redo a completed action; in particular, never offer or collect details for another contact note after one was sent, unless the visitor explicitly asks to send another.',
+          'You were not pre-trained on this site: you are reading it live, the same way any visiting AI agent would. If a visitor asks how you know things, say so.',
           "Match the site's tone: calm, dry, no hype. Close completed tasks with a concrete next step when one makes sense; don't force it.",
           'Never navigate away from this site. Politely decline destructive or unrelated requests and steer back to Remotely Human.',
         ].join(' '),
         getPageInstructions: (url) => {
           try {
-            return pageInstructionFor(new URL(url).pathname)
+            let out = pageInstructionFor(new URL(url).pathname) || ''
+            if (SESSION_LOG.length) {
+              out +=
+                '\nSession so far (already completed for this visitor — do NOT repeat): ' +
+                SESSION_LOG.slice(-6).join(' | ')
+            }
+            return out || undefined
           } catch {
             return undefined
           }
@@ -73,6 +89,30 @@
       // automatically; if the gateway lane moves back to Claude, add top-level
       // cache_control here (per the page-agent models doc).
       transformRequestBody: (body) => body,
+      // Task telemetry (phones home to us only): the query string lands in
+      // our nginx access log via /api/agent-log — what visitors ask steers
+      // the build-out. Task text is visitor input; truncated, never stored
+      // beyond the container log. (Pattern from paymentverse-site 0a903d8.)
+      onAfterTask: (a: any, result: any) => {
+        try {
+          SESSION_LOG.push(
+            `${result?.success ? 'DONE' : 'FAILED'}: "${String(a?.task || '').slice(0, 100)}" → ${String(result?.data || '').slice(0, 120)}`
+          )
+        } catch {
+          /* session log must never break the task */
+        }
+        try {
+          const q = new URLSearchParams({
+            ok: result?.success ? '1' : '0',
+            steps: String(result?.history?.filter((h: any) => h.type === 'step').length ?? ''),
+            path: location.pathname,
+            task: String(a?.task || '').slice(0, 180),
+          })
+          navigator.sendBeacon?.('/api/agent-log?' + q.toString())
+        } catch {
+          /* telemetry must never break the task */
+        }
+      },
       customTools: {
         // Same-name override of the built-in scroll tool (the documented
         // extension point). The library's ancestor walk stops at <body> and
@@ -121,6 +161,49 @@
     ;(window as any).pageAgent = agent
     agent.panel.wrapper.id = 'page-agent-panel'
     agent.panel.show()
+
+    // --- First-run UX on top of the vendor panel (pattern from
+    // paymentverse-site 0a903d8; defensive: all of this degrades to the
+    // stock panel if the library's DOM changes) ---
+
+    // The vendor placeholder is robot-speak; keep ours through re-renders.
+    const setPlaceholder = () => {
+      const input = agent.panel.wrapper.querySelector(
+        'input[placeholder], textarea[placeholder]'
+      )
+      input?.setAttribute('placeholder', 'Ask about Remotely Human…')
+    }
+    setPlaceholder()
+    setTimeout(setPlaceholder, 500)
+
+    // Proactive opener + suggestion chips: shown until the first task runs.
+    // Chips are page-agnostic — the widget mounts on every page.
+    const opener = document.createElement('div')
+    opener.id = 'rh-agent-opener'
+    const line = document.createElement('p')
+    line.textContent =
+      'Hi — I’m a live AI agent. I wasn’t trained on this site: I read it in real time. Watch me work, or put me to work:'
+    opener.appendChild(line)
+    const CHIPS: Array<[string, string]> = [
+      ['What is Remotely Human?', 'Briefly explain what Remotely Human is, from this site.'],
+      ['Show me around', 'Give me a quick tour of this page: scroll through its main sections one by one, briefly explaining each.'],
+      ['Talk to the team', 'Help me get in touch with the team.'],
+    ]
+    for (const [label, task] of CHIPS) {
+      const chip = document.createElement('button')
+      chip.type = 'button'
+      chip.textContent = label
+      chip.addEventListener('click', () => {
+        agent.execute(task).catch(() => {})
+      })
+      opener.appendChild(chip)
+    }
+    agent.panel.wrapper.appendChild(opener)
+    agent.addEventListener('statuschange', () => {
+      setPlaceholder()
+      // Any run (chip or typed) retires the opener for this page view.
+      if (agent.status === 'running') opener.remove()
+    })
   }
 
   // Off the critical path: load after first idle.
@@ -153,5 +236,44 @@
   }
   #page-agent-panel [class*='_thinking_'] {
     background: #8b5cf6 !important;
+  }
+
+  /* Opener card + suggestion chips (our element, appended into the wrapper;
+     absolute so the vendor panel layout is untouched). Unlike PV (dark-only),
+     RH is dual-theme — colors ride the site tokens. */
+  #rh-agent-opener {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 0;
+    width: min(320px, calc(100vw - 48px));
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  }
+  #rh-agent-opener p {
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--dim);
+  }
+  #rh-agent-opener button {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 5px 11px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--accent-text);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  #rh-agent-opener button:hover {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    color: var(--accent-hover);
   }
 </style>

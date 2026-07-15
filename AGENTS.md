@@ -29,6 +29,28 @@ The short version:
   (or even verify) cross-origin iframes, so any flow that matters gets built
   native or same-origin, with success/error as visible DOM text.
 
+## Widget UX + telemetry (mirrored from paymentverse-site 0a903d8/866606d)
+
+- Every finished task fires a beacon to `/api/agent-log` (nginx `return 204`;
+  the query string — outcome, steps, path, truncated task text — lands in the
+  container's access log). Read what visitors actually ask before deciding
+  what to build: `ssh marketing-server`, then grep the site container's
+  `docker logs` for `agent-log`.
+- The opener card + suggestion chips (`#rh-agent-opener`) and the input
+  placeholder are our DOM grafted onto the vendor panel in
+  `PageAgentWidget.astro` — defensive by design; if a library update breaks
+  a selector, the stock panel still works. Re-check after `page-agent` bumps.
+  Unlike PV the opener is theme-aware (site tokens), and the chips are
+  page-agnostic because the widget mounts on every page.
+- **page-agent has NO cross-task memory** — `execute()` resets `history = []`
+  every task (PageAgentCore). Session continuity is OURS: `SESSION_LOG` in
+  `PageAgentWidget.astro` (fed by `onAfterTask`, injected each step via the
+  `getPageInstructions` callback as a "Session so far" list). Without it the
+  agent re-offers actions it just completed. On this multi-page site the log
+  also dies on navigation (full page load) — a sessionStorage upgrade is the
+  obvious next step if that starts to hurt. Don't remove the log; if tasks
+  need more context, grow the log entries, not the system prompt.
+
 ## When you add or change a page
 
 - Update `public/llms.txt` (the widget fetches it for site context; keep it

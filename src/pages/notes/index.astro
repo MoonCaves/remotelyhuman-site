@@ -25,7 +25,7 @@ const fmt = new Intl.DateTimeFormat('en-US', {
       notes.length === 0 ? (
         <p class="empty">Nothing here yet. The brain is still asleep.</p>
       ) : (
-        <ul>
+        <ul role="list">
           {notes.map((note) => (
             <li>
               <time datetime={note.data.date.toISOString()}>

@@ -23,6 +23,11 @@ The short version:
   `#page-agent-panel` overrides in the widget component (`!important` beats the
   library's inline `show()`/`hide()` styles; the `[class*=…]` selectors are
   best-effort cosmetics).
+- **Contact form is native** (`/contact`, `<form id="contact-form">` posting to
+  the OpnForm API, open CORS) — replaced the cross-origin iframe 2026-07-15;
+  same doctrine as paymentverse-site AGENTS.md rule #3: agents can't see into
+  (or even verify) cross-origin iframes, so any flow that matters gets built
+  native or same-origin, with success/error as visible DOM text.
 
 ## When you add or change a page
 

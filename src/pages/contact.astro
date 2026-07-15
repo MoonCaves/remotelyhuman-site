@@ -14,11 +14,27 @@ import Base from '../layouts/Base.astro'
       back to you, eventually.
     </p>
     <div class="form-wrap">
-      <iframe
-        src="https://opnform.remotelyhuman.com/forms/contact-ops-tavcjx"
-        title="Contact Ops form"
-        loading="lazy"
-      ></iframe>
+      <!-- Native same-origin form (posts to the OpnForm API) — the previous
+           cross-origin iframe was invisible to page agents and worse for
+           humans too (third-party embed, no browser autofill). Success/error
+           render as visible DOM text so both can verify. Same pattern as
+           paymentverse-site (its AGENTS.md rule #3). -->
+      <form id="contact-form" class="contact-form" aria-label="Contact form" novalidate>
+        <div class="field">
+          <label for="cf-name">Name <span class="req" aria-hidden="true">*</span></label>
+          <input id="cf-name" name="field-name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="cf-email">Email <span class="req" aria-hidden="true">*</span></label>
+          <input id="cf-email" name="field-email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="cf-message">Message <span class="req" aria-hidden="true">*</span></label>
+          <textarea id="cf-message" name="field-message" rows="6" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send to Ops</button>
+        <p class="form-status" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </main>
 </Base>
@@ -55,13 +71,109 @@ import Base from '../layouts/Base.astro'
     margin-top: 2.5rem;
     border: 1px solid var(--hairline);
     border-radius: 12px;
-    overflow: hidden;
     background: var(--panel);
+    padding: 1.8rem;
   }
-  iframe {
-    display: block;
-    width: 100%;
-    height: 640px;
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .field label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--dim);
+  }
+  .req {
+    color: var(--accent-text);
+  }
+  .field input,
+  .field textarea {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .submit-btn {
+    align-self: flex-start;
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: 600;
+    color: var(--accent-contrast);
+    background: var(--accent);
     border: none;
+    border-radius: 10px;
+    padding: 0.7rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .submit-btn:hover {
+    background: var(--accent-hover);
+  }
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .form-status {
+    min-height: 1.2em;
+    font-size: var(--text-sm);
+    color: var(--dim);
+  }
+  .form-status.ok {
+    color: var(--accent-text);
+  }
+  .form-status.err {
+    color: #e5484d;
   }
 </style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null
+  if (form) {
+    const status = form.querySelector('.form-status') as HTMLElement
+    const button = form.querySelector('.submit-btn') as HTMLButtonElement
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      if (!form.reportValidity()) return
+      button.disabled = true
+      status.className = 'form-status'
+      status.textContent = 'Sending…'
+      try {
+        const data = Object.fromEntries(new FormData(form).entries())
+        const res = await fetch(
+          'https://opnform.remotelyhuman.com/api/forms/contact-ops-tavcjx/answer',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          }
+        )
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        // Success must be visible DOM text — humans and agents verify by it.
+        form.innerHTML =
+          '<p class="form-status ok" role="status">Message sent — the desk reads everything and will reply to your email. Eventually.</p>'
+      } catch {
+        status.className = 'form-status err'
+        status.textContent =
+          'Something went wrong sending your message. Please try again in a moment.'
+        button.disabled = false
+      }
+    })
+  }
+</script>

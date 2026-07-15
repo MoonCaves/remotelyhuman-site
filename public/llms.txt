@@ -14,8 +14,9 @@ Site: https://remotelyhuman.com — home, notes (digital garden), projects, cont
 
 ## For agents
 
-- The contact form is an embedded cross-origin iframe; automated page agents
-  cannot type into it. Bring it into view and hand off to the human.
+- The contact form (#contact-form on /contact) is native: Name, Email, Message
+  fields and a "Send to Ops" button. Fill it with the human's real details and
+  submit; success shows "Message sent" in the page.
 - Header links: BLOG (external blog.remotelyhuman.com), CONTACT OPS, theme toggle.
 - The on-page assistant (bottom-right panel) accepts natural-language tasks.
 - This is a multi-page static site: following a link is a full page load.

@@ -22,6 +22,7 @@ const fmt = new Intl.DateTimeFormat('en-US', {
 <Base
   title={`${note.data.title} — Remotely Human`}
   description={note.data.description ?? `${note.data.title} — a note from the Remotely Human garden.`}
+  article={{ published: note.data.date }}
 >
   <main id="main">
     <a class="back" href="/notes">← All notes</a>

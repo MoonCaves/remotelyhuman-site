@@ -16,6 +16,7 @@
   and AGENTS.md in sync as pages grow.
 */
 import { PageAgentCore, tool } from '@page-agent/core'
+import { PageController } from '@page-agent/page-controller'
 import { z } from 'zod/v4'
 
 // Per-route guidance injected into the agent's prompt on every step.
@@ -61,6 +62,10 @@ export function createEngine(): PageAgentCore {
   if (existing) return existing
 
   const engine = new PageAgentCore({
+    // Required DOM controller — dropped when the face was decoupled from
+    // @page-agent/ui (the stock Panel used to construct it), so every task
+    // crashed at getBrowserState(). Restored 2026-07-16 (mirrors the PV fix).
+    pageController: new PageController(),
     model: 'rh-widget',
     baseURL: '/api/llm',
     apiKey: 'sk-PZqAgca4d9r0xCWNnd19yw',

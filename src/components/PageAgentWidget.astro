@@ -1,279 +1,116 @@
 {/*
-  page-agent widget (github.com/alibaba/page-agent) — self-hosted library build,
-  same pattern as paymentverse-site (source + npm dist audited there 2026-07-14:
-  the only network call is POST {baseURL}/chat/completions plus a same-origin
-  /llms.txt fetch). Never ship the vendor's jsDelivr demo bundle — it routes
-  page data through Alibaba's hosted test LLM.
-  Backend: same-origin nginx proxy -> LiteLLM gateway. The key is
-  public-by-design, scoped to the rh-widget alias and rate/budget-limited
-  (key alias: remotelyhuman-widget). Which model rh-widget resolves to is a
-  gateway-side decision — see AGENTS.md.
-  Keep this file, /public/llms.txt, and AGENTS.md in sync as pages grow.
+  On-page assistant mount point. The engine and the face are decoupled
+  (2026-07-15, mirrored from paymentverse-site): this component just wires a
+  headless engine to a swappable face and mounts it off the critical path.
+
+  - Engine:  src/agent/engine.ts  (headless PageAgentCore — LLM proxy, prompts,
+             session memory, telemetry, tools). Backend unchanged.
+  - Face:    src/agent/faces/*    (the visual layer). Swap FACE below — Rive
+             bot, text-bubble, stock panel — without touching the engine.
+  See AGENTS.md for the architecture and the DOM-friendliness rules a face
+  must honour. Never ship the vendor's jsDelivr demo bundle — it routes page
+  data through Alibaba's hosted test LLM.
 */}
 <script>
-  // Per-route guidance injected into the agent's prompt on every step.
-  // Add an entry when a new page ships (see AGENTS.md).
-  const PAGE_INSTRUCTIONS: Record<string, string> = {
-    '/':
-      'Home. Top to bottom: header (BLOG, CONTACT OPS, theme toggle), hero with cycling tagline, "Notes & ops" cards (The garden / The ops desk), "From the notes" grid, footer. Full page map is in llms.txt.',
-    '/projects': 'Projects: six project cards with short descriptions.',
-    '/contact':
-      'Contact. The form is native (#contact-form, fields: Name, Email, Message, button "Send to Ops"). You can fill and submit it; after submitting, verify by the visible confirmation text "Message sent".',
-    '/notes':
-      'Notes index — the digital garden. Each entry links to a full note page.',
-  }
+  import { createEngine } from '../agent/engine'
+  // The one swap point. Point this at a different face module to change the
+  // assistant's whole look/UX; the engine is untouched.
+  import { minimalFace as FACE } from '../agent/faces/minimal'
 
-  const pageInstructionFor = (pathname: string): string | undefined => {
-    const path = pathname.replace(/\/$/, '') || '/'
-    if (path.startsWith('/notes/'))
-      return 'A single note (blog post). Related notes are wiki-linked in the body; the notes index is at /notes.'
-    return PAGE_INSTRUCTIONS[path]
-  }
-
-  // Masking rules applied to page content before it reaches the LLM.
-  // The site renders no visitor PII today; add [pattern, replacement]
-  // pairs here the moment any page starts showing user-specific data.
-  const MASKING_RULES: Array<[RegExp, string]> = []
-
-  // Cross-task session memory (pattern from paymentverse-site 866606d).
-  // page-agent wipes its history at the start of EVERY execute()
-  // (PageAgentCore resets `history = []`) — each task is amnesiac, which
-  // makes the agent re-offer actions it just completed. We keep our own log
-  // and inject it per step via the instructions callback. Note: on this
-  // multi-page site the log also dies on navigation (full page load).
-  const SESSION_LOG: string[] = []
-
-  const startPageAgent = async () => {
-    if ((window as any).pageAgent) return
-    const { PageAgent, tool } = await import('page-agent')
-    const { z } = await import('zod/v4')
-    const agent = new PageAgent({
-      model: 'rh-widget',
-      baseURL: '/api/llm',
-      apiKey: 'sk-PZqAgca4d9r0xCWNnd19yw',
-      language: 'en-US',
-      maxSteps: 15,
-      instructions: {
-        system: [
-          'You are the on-page assistant for remotelyhuman.com, the site of Remotely Human — a small studio that works quietly across many software projects.',
-          'Your goals, in order: (1) answer questions about Remotely Human briefly and accurately from page content; (2) help visitors find what they came for — notes, projects, or the contact page; (3) when a visitor wants to reach the team, fill the contact form (/contact) for them: use the ask_user tool to collect their real name, email, and message — never invent, guess, or reuse example contact details — then submit and confirm via the visible "Message sent" text.',
-          'This is a multi-page site: clicking a link to another page does a full page load, which ends your current task — so before clicking through, tell the visitor what to look for there.',
-          'Your instructions may include a "Session so far" list — actions you already completed for this visitor. Trust it and never redo a completed action; in particular, never offer or collect details for another contact note after one was sent, unless the visitor explicitly asks to send another.',
-          'You were not pre-trained on this site: you are reading it live, the same way any visiting AI agent would. If a visitor asks how you know things, say so.',
-          "Match the site's tone: calm, dry, no hype. Close completed tasks with a concrete next step when one makes sense; don't force it.",
-          'Never navigate away from this site. Politely decline destructive or unrelated requests and steer back to Remotely Human.',
-        ].join(' '),
-        getPageInstructions: (url) => {
-          try {
-            let out = pageInstructionFor(new URL(url).pathname) || ''
-            if (SESSION_LOG.length) {
-              out +=
-                '\nSession so far (already completed for this visitor — do NOT repeat): ' +
-                SESSION_LOG.slice(-6).join(' | ')
-            }
-            return out || undefined
-          } catch {
-            return undefined
-          }
-        },
-      },
-      // Site context for the agent from /llms.txt (same-origin fetch, cached).
-      experimentalLlmsTxt: true,
-      transformPageContent: (content) => {
-        for (const [pattern, replacement] of MASKING_RULES) {
-          content = content.replace(pattern, replacement)
-        }
-        return content
-      },
-      // Request-body escape hatch. The current OpenAI-sub lane prompt-caches
-      // automatically; if the gateway lane moves back to Claude, add top-level
-      // cache_control here (per the page-agent models doc).
-      transformRequestBody: (body) => body,
-      // Task telemetry (phones home to us only): the query string lands in
-      // our nginx access log via /api/agent-log — what visitors ask steers
-      // the build-out. Task text is visitor input; truncated, never stored
-      // beyond the container log. (Pattern from paymentverse-site 0a903d8.)
-      onAfterTask: (a: any, result: any) => {
-        try {
-          SESSION_LOG.push(
-            `${result?.success ? 'DONE' : 'FAILED'}: "${String(a?.task || '').slice(0, 100)}" → ${String(result?.data || '').slice(0, 120)}`
-          )
-        } catch {
-          /* session log must never break the task */
-        }
-        try {
-          const q = new URLSearchParams({
-            ok: result?.success ? '1' : '0',
-            steps: String(result?.history?.filter((h: any) => h.type === 'step').length ?? ''),
-            path: location.pathname,
-            task: String(a?.task || '').slice(0, 180),
-          })
-          navigator.sendBeacon?.('/api/agent-log?' + q.toString())
-        } catch {
-          /* telemetry must never break the task */
-        }
-      },
-      customTools: {
-        // Same-name override of the built-in scroll tool (the documented
-        // extension point). The library's ancestor walk stops at <body> and
-        // never treats the document itself as scrollable, so any indexed
-        // scroll on a normal page returns "No scrollable container found"
-        // (verified live 2026-07-15) — and the OpenAI-lane strict tool
-        // schema means the model always sends an index. Delegate to the
-        // library first, then fall back to an instant window scroll with an
-        // honest read-back.
-        scroll: tool({
-          description:
-            'Scroll vertically. Without index: scrolls the document. With index: scrolls the container at that index (or its nearest scrollable ancestor). Use index of a data-scrollable element to scroll a specific area.',
-          inputSchema: z.object({
-            down: z.boolean().default(true),
-            num_pages: z.number().min(0).max(10).optional().default(0.1),
-            pixels: z.number().int().min(0).optional(),
-            index: z.number().int().min(0).optional(),
-          }),
-          execute: async function (this: any, input: any) {
-            const result = await this.pageController.scroll({
-              ...input,
-              numPages: input.num_pages,
-            })
-            if (!result.message.includes('No scrollable container found'))
-              return result.message
-            // || not ??: the strict-schema model sends pixels/num_pages of 0
-            // to mean "unused", and a 0px scroll wastes a step.
-            const magnitude =
-              input.pixels || (input.num_pages || 0.1) * window.innerHeight
-            const dy = (input.down === false ? -1 : 1) * magnitude
-            const before = window.scrollY
-            window.scrollBy({ top: dy, behavior: 'instant' })
-            await new Promise((resolve) => setTimeout(resolve, 100))
-            const scrolled = Math.round(window.scrollY - before)
-            if (Math.abs(scrolled) < 1)
-              return dy > 0
-                ? '⚠️ Already at the bottom of the page, cannot scroll down further.'
-                : '⚠️ Already at the top of the page, cannot scroll up further.'
-            return `✅ Scrolled page by ${scrolled}px.`
-          },
-        }),
-      },
-    })
-    // The Panel wires agent.onAskUser to its own in-panel prompt, so the
-    // ask_user tool is active — the agent can ask the visitor questions.
-    ;(window as any).pageAgent = agent
-    agent.panel.wrapper.id = 'page-agent-panel'
-    agent.panel.show()
-
-    // --- First-run UX on top of the vendor panel (pattern from
-    // paymentverse-site 0a903d8; defensive: all of this degrades to the
-    // stock panel if the library's DOM changes) ---
-
-    // The vendor placeholder is robot-speak; keep ours through re-renders.
-    const setPlaceholder = () => {
-      const input = agent.panel.wrapper.querySelector(
-        'input[placeholder], textarea[placeholder]'
-      )
-      input?.setAttribute('placeholder', 'Ask about Remotely Human…')
-    }
-    setPlaceholder()
-    setTimeout(setPlaceholder, 500)
-
-    // Proactive opener + suggestion chips: shown until the first task runs.
-    // Chips are page-agnostic — the widget mounts on every page.
-    const opener = document.createElement('div')
-    opener.id = 'rh-agent-opener'
-    const line = document.createElement('p')
-    line.textContent =
-      'Hi — I don’t come with memory. I’m discovering this site for the first time, just like you. Watch me work, or put me to work:'
-    opener.appendChild(line)
-    const CHIPS: Array<[string, string]> = [
-      ['What is Remotely Human?', 'Briefly explain what Remotely Human is, from this site.'],
-      ['Show me around', 'Give me a quick tour of this page: scroll through its main sections one by one, briefly explaining each.'],
-      ['Talk to the team', 'Help me get in touch with the team.'],
-    ]
-    for (const [label, task] of CHIPS) {
-      const chip = document.createElement('button')
-      chip.type = 'button'
-      chip.textContent = label
-      chip.addEventListener('click', () => {
-        agent.execute(task).catch(() => {})
-      })
-      opener.appendChild(chip)
-    }
-    agent.panel.wrapper.appendChild(opener)
-    agent.addEventListener('statuschange', () => {
-      setPlaceholder()
-      // Any run (chip or typed) retires the opener for this page view.
-      if (agent.status === 'running') opener.remove()
-    })
+  const start = () => {
+    if ((window as any).__rhFaceMounted) return
+    ;(window as any).__rhFaceMounted = true
+    const engine = createEngine()
+    FACE.mount(engine)
   }
 
   // Off the critical path: load after first idle.
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => startPageAgent(), { timeout: 8000 })
+    requestIdleCallback(() => start(), { timeout: 8000 })
   } else {
-    setTimeout(startPageAgent, 3000)
+    setTimeout(start, 3000)
   }
 </script>
 
 <style is:inline>
-  /* Panel overrides ride the #page-agent-panel id (set on panel.wrapper above).
-     !important beats the inline styles the library's show()/hide() write.
-     The [class*=…] selectors match the readable part of the library's
-     CSS-module hashes — best-effort cosmetics that degrade gracefully. */
-  #page-agent-panel {
-    /* bottom-right corner, off the page copy. The input bar hangs 48px below
-       the 40px control bar, so bottom:68px = a 20px real margin under it. */
-    bottom: 68px !important;
-    left: auto !important;
-    right: 24px !important;
-    transform: none !important;
-    /* brand the animated glow (library default is blue/magenta) */
-    --color-1: #a78bfa;
-    --color-2: #6d28d9;
+  /* Minimal face — bottom-right launcher + small panel. A richer face brings
+     its own styles; these only dress the interim `minimalFace`. Unlike PV
+     (dark-only), RH is dual-theme — colors ride the site tokens. */
+  #rh-face-minimal {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 60;
+    font-family: var(--font-body, 'Inter', system-ui, sans-serif);
   }
-  #page-agent-panel [class*='_taskInput_']:focus {
-    border-color: rgba(139, 92, 246, 0.6) !important;
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+  #rhf-launch {
+    padding: 10px 16px;
+    font: 500 13px/1 var(--font-body, 'Inter', system-ui, sans-serif);
+    color: var(--accent-contrast);
+    background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 40%, transparent);
   }
-  #page-agent-panel [class*='_thinking_'] {
-    background: #8b5cf6 !important;
-  }
-
-  /* Opener card + suggestion chips (our element, appended into the wrapper;
-     absolute so the vendor panel layout is untouched). Unlike PV (dark-only),
-     RH is dual-theme — colors ride the site tokens. */
-  #rh-agent-opener {
+  #rhf-panel {
     position: absolute;
     bottom: calc(100% + 12px);
     right: 0;
     width: min(320px, calc(100vw - 48px));
+    padding: 14px 16px;
     background: var(--panel);
     border: 1px solid var(--hairline);
     border-radius: 14px;
-    padding: 14px 16px;
-    font-family: var(--font-body, 'Inter', system-ui, sans-serif);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   }
-  #rh-agent-opener p {
+  #rhf-status {
     margin: 0 0 10px;
     font-size: 13px;
     line-height: 1.55;
     color: var(--dim);
   }
-  #rh-agent-opener button {
+  #rhf-chips button {
     display: inline-block;
     margin: 0 6px 6px 0;
     padding: 5px 11px;
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 500;
+    font: 500 12.5px/1 var(--font-body, 'Inter', system-ui, sans-serif);
     color: var(--accent-text);
     background: color-mix(in srgb, var(--accent) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     border-radius: 999px;
     cursor: pointer;
   }
-  #rh-agent-opener button:hover {
+  #rhf-chips button:hover {
     background: color-mix(in srgb, var(--accent) 22%, transparent);
     color: var(--accent-hover);
+  }
+  #rhf-form {
+    display: flex;
+    gap: 6px;
+  }
+  #rhf-input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    font: 400 13px/1 var(--font-body, 'Inter', system-ui, sans-serif);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+  }
+  #rhf-input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  #rhf-form button[type='submit'] {
+    padding: 8px 12px;
+    font: 500 13px/1 var(--font-body, 'Inter', system-ui, sans-serif);
+    color: var(--accent-text);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 8px;
+    cursor: pointer;
   }
 </style>
